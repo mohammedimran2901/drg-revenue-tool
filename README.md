@@ -46,7 +46,7 @@ benchmark) → missed insured income. Everything is computed on **insured cases 
 
 | Benchmark | Granularity | Source | Role |
 |---|---|---|---|
-| **UK** | **per-DRG (UK-calibrated)** | NHS England National Cost Collection 2023/24 (HRG4+) + HES APC | **Headline / primary** |
+| **UK** | per-DRG (**calibrated**, not observed) | UK chapter anchors × AIHW within-chapter pattern; genuine NHS activity shown separately (NCC FY2021/22, HRG4+) | **Headline / primary** |
 | **Australia AIHW** | per-DRG (306/309) | AIHW AR-DRG v9.0 data cube 2019–20 | Structural anchor (like-for-like grouper) |
 | **UAE DoH Abu Dhabi** | chapter level | DoH IR-DRG 3.01 / Shafafiya | Regional peer |
 | **KSA CHI baseline** | chapter level | CHI DRG baseline assumptions | Current-state fallback |
@@ -68,6 +68,42 @@ a UK figure by:
 Chapter totals are preserved (approximately to exactly), and the result is labelled
 **"UK-calibrated"** everywhere it appears. A future upgrade can replace this with a
 true HRG4+ → AR-DRG crosswalk derived from the National Cost Collection.
+
+> **Important:** the UK per-DRG column is **arithmetic on Australian data**, not NHS
+> per-DRG data. Anything quoted from it externally should say so.
+
+### Real UK casemix
+
+Separately from the calibration, the tool carries **real NHS activity**, so the UK
+anchor can be audited rather than assumed:
+
+- **16,927,227 FCEs** across **2,568 HRG4+ codes** — NHS England National Schedule of
+  NHS Costs FY2021/22 (v4), sheet "APC" — mapped to **22 body-system chapters**
+  (98.3% of activity; HRG4+ chapters with no AR-DRG equivalent are left unmapped).
+- A real **Low / Medium / High** complexity split, banded in priority order by:
+  1. NHS's own wording in the HRG description ("Very Major"…"Minimal") — 15% of activity;
+  2. the **CC-score** complication/comorbidity ladder — 61%;
+  3. unit-cost tertile within the chapter — 24%.
+- Displayed in **DRG Chapters & Benchmarks → "Real UK casemix"**, next to the chapter
+  anchor the tool assumes, with the difference flagged where it is large.
+
+Reproduce it:
+
+```bash
+cd tools
+python3 extract_nhs_apc.py 2-National-schedule-of-NHS-costs-FY21-22-v4.xlsx /tmp/nhs_hrg.csv
+NHS_HRG_CSV=/tmp/nhs_hrg.csv python3 build_uk_casemix.py      # writes uk-casemix.json
+```
+
+> **What this surfaced.** The UK chapter anchors the tool assumes diverge from the real
+> NHS-derived low-complexity share by up to **43 percentage points** — Newborns assumed
+> 52% low vs **24%** actual, Infectious 42% vs **20%**, Respiratory 38% vs **19%**,
+> Pregnancy 52% vs **38%**. The direction is mostly **conservative** (the tool over-states
+> the low tier, so missed revenue is more likely understated than overstated), but the
+> anchors are **not traceable to NHS data** and should be re-derived before any figure is
+> quoted externally. Note also that the tool's two-way Minor/Major split and the NHS
+> three-way Low/Medium/High split are **not identical constructs**, so the comparison is
+> indicative rather than a like-for-like recalibration.
 
 ---
 
@@ -95,8 +131,9 @@ activity-based system — the best "what good looks like" reference — but it i
 - **🎯 Biggest Bank for Buck** — top-10 DRGs by money at stake.
 - **🏥 Facility Targeting** — upload, column mapping, facility league table.
 - **Full Ranking** — sortable DRG league table.
-- **DRG Chapters & Benchmarks** — per-chapter breakdown with all benchmark columns
-  and the source audit trail.
+- **DRG Chapters & Benchmarks** — per-chapter breakdown with all benchmark columns,
+  a **Real UK casemix** panel (actual NHS episodes + Low/Medium/High split per chapter,
+  vs the anchor the tool assumes) and the source audit trail.
 - **Simulator** — shift-X%-of-minors-to-majors revenue simulation.
 
 ## Exports
@@ -144,8 +181,10 @@ server and no internet.
 
 ## Version
 
-**v2.4** (2026-09-26) · Price table: AR-DRG v9.0 (CHI).
+**v2.5** (2026-09-26) · Price table: AR-DRG v9.0 (CHI).
 
-> For internal revenue-strategy use. UK/UAE/KSA values are chapter-anchored
-> (UK is per-DRG calibrated); Australia AIHW is per-DRG evidenced. Observed shares
+> For internal revenue-strategy use. UK per-DRG values are a **calibration over
+> Australian data**, not NHS per-DRG data; real NHS activity and complexity are shown
+> separately in the "Real UK casemix" panel. UAE/KSA values are chapter-anchored
+> assumptions; Australia AIHW is the only true per-DRG evidenced source. Observed shares
 > default to the KSA CHI baseline until a patient file is uploaded.

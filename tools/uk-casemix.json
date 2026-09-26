@@ -1,0 +1,1351 @@
+{
+ "chapter": {
+  "AA": {
+   "basis": {
+    "cc": 0.9532,
+    "cost": 0.0159,
+    "explicit": 0.0309
+   },
+   "codes": 101,
+   "exemplar": "Headache, Migraine or Cerebrospinal Fluid Leak, with CC Score 0-6",
+   "fce": 771704,
+   "high": 139461,
+   "low": 244741,
+   "lowShare": 0.3171,
+   "mdc": "B",
+   "medium": 387502
+  },
+  "AB": {
+   "basis": {
+    "cost": 1.0
+   },
+   "codes": 16,
+   "exemplar": "Epidural Under Image Control for Pain Management",
+   "fce": 150870,
+   "high": 45322,
+   "low": 20644,
+   "lowShare": 0.1368,
+   "mdc": "B",
+   "medium": 84904
+  },
+  "BZ": {
+   "basis": {
+    "cc": 0.5485,
+    "cost": 0.014,
+    "explicit": 0.4375
+   },
+   "codes": 95,
+   "exemplar": "Phacoemulsification Cataract Extraction and Lens Implant, with CC Scor",
+   "fce": 506557,
+   "high": 146283,
+   "low": 187178,
+   "lowShare": 0.3695,
+   "mdc": "C",
+   "medium": 173096
+  },
+  "CA": {
+   "basis": {
+    "cc": 0.0255,
+    "cost": 0.6154,
+    "explicit": 0.3591
+   },
+   "codes": 122,
+   "exemplar": "Excision or Biopsy, of Lesion of Mouth, 19 years and over",
+   "fce": 245479,
+   "high": 57339,
+   "low": 121336,
+   "lowShare": 0.4943,
+   "mdc": "D",
+   "medium": 66804
+  },
+  "CB": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 12,
+   "exemplar": "Non-Malignant, Ear, Nose, Mouth, Throat or Neck Disorders, without Int",
+   "fce": 191680,
+   "high": 73359,
+   "low": 4147,
+   "lowShare": 0.0216,
+   "mdc": "D",
+   "medium": 114174
+  },
+  "CD": {
+   "basis": {
+    "cost": 0.4785,
+    "explicit": 0.5215
+   },
+   "codes": 23,
+   "exemplar": "Extraction of Multiple Teeth, 18 years and under",
+   "fce": 120625,
+   "high": 86670,
+   "low": 21402,
+   "lowShare": 0.1774,
+   "mdc": "D",
+   "medium": 12553
+  },
+  "DX": {
+   "basis": {
+    "cost": 0.6597,
+    "explicit": 0.3403
+   },
+   "codes": 6,
+   "exemplar": "COVID-19 Infection, with Pneumonia, 19 years and over",
+   "fce": 261907,
+   "high": 90289,
+   "low": 10109,
+   "lowShare": 0.0386,
+   "mdc": "T",
+   "medium": 161509
+  },
+  "DZ": {
+   "basis": {
+    "cc": 0.8529,
+    "cost": 0.1254,
+    "explicit": 0.0217
+   },
+   "codes": 175,
+   "exemplar": "Lobar, Atypical or Viral Pneumonia, without Interventions, with CC Sco",
+   "fce": 1216880,
+   "high": 206040,
+   "low": 149730,
+   "lowShare": 0.123,
+   "mdc": "E",
+   "medium": 861110
+  },
+  "EB": {
+   "basis": {
+    "cc": 0.9649,
+    "cost": 0.0351
+   },
+   "codes": 48,
+   "exemplar": "Unspecified Chest Pain with CC Score 0-4",
+   "fce": 1108244,
+   "high": 182034,
+   "low": 320745,
+   "lowShare": 0.2894,
+   "mdc": "F",
+   "medium": 605465
+  },
+  "EC": {
+   "basis": {
+    "cc": 0.3725,
+    "cost": 0.1452,
+    "explicit": 0.4823
+   },
+   "codes": 21,
+   "exemplar": "Complex Echocardiogram for Congenital Heart Disease",
+   "fce": 15802,
+   "high": 6682,
+   "low": 4526,
+   "lowShare": 0.2864,
+   "mdc": "F",
+   "medium": 4594
+  },
+  "ED": {
+   "basis": {
+    "cc": 0.8821,
+    "cost": 0.032,
+    "explicit": 0.0859
+   },
+   "codes": 50,
+   "exemplar": "Standard Coronary Artery Bypass Graft with CC Score 5-9",
+   "fce": 21500,
+   "high": 9569,
+   "low": 5602,
+   "lowShare": 0.2606,
+   "mdc": "F",
+   "medium": 6329
+  },
+  "EY": {
+   "basis": {
+    "cc": 0.9317,
+    "cost": 0.0679,
+    "explicit": 0.0004
+   },
+   "codes": 73,
+   "exemplar": "Standard Cardiac Catheterisation with CC Score 2-3",
+   "fce": 283264,
+   "high": 38020,
+   "low": 108285,
+   "lowShare": 0.3823,
+   "mdc": "F",
+   "medium": 136959
+  },
+  "FD": {
+   "basis": {
+    "cc": 0.8203,
+    "cost": 0.1797
+   },
+   "codes": 54,
+   "exemplar": "Non-Malignant Gastrointestinal Tract Disorders without Interventions, ",
+   "fce": 1148553,
+   "high": 53831,
+   "low": 358236,
+   "lowShare": 0.3119,
+   "mdc": "G",
+   "medium": 736486
+  },
+  "FE": {
+   "basis": {
+    "cc": 0.0112,
+    "cost": 0.9246,
+    "explicit": 0.0642
+   },
+   "codes": 41,
+   "exemplar": "Diagnostic Endoscopic Upper Gastrointestinal Tract Procedures with Bio",
+   "fce": 1383866,
+   "high": 43596,
+   "low": 861929,
+   "lowShare": 0.6228,
+   "mdc": "G",
+   "medium": 478341
+  },
+  "FF": {
+   "basis": {
+    "cc": 0.4714,
+    "cost": 0.0352,
+    "explicit": 0.4934
+   },
+   "codes": 115,
+   "exemplar": "Minor Therapeutic or Diagnostic, General Abdominal Procedures, 19 year",
+   "fce": 333795,
+   "high": 61740,
+   "low": 126497,
+   "lowShare": 0.379,
+   "mdc": "G",
+   "medium": 145558
+  },
+  "GA": {
+   "basis": {
+    "cc": 0.8253,
+    "cost": 0.0201,
+    "explicit": 0.1545
+   },
+   "codes": 27,
+   "exemplar": "Laparoscopic Cholecystectomy, 19 years and over, with CC Score 0",
+   "fce": 64523,
+   "high": 10039,
+   "low": 30347,
+   "lowShare": 0.4703,
+   "mdc": "H",
+   "medium": 24137
+  },
+  "GB": {
+   "basis": {
+    "cc": 0.1083,
+    "cost": 0.2713,
+    "explicit": 0.6203
+   },
+   "codes": 14,
+   "exemplar": "Intermediate Therapeutic Endoscopic Retrograde Cholangiopancreatograph",
+   "fce": 49953,
+   "high": 11866,
+   "low": 8160,
+   "lowShare": 0.1634,
+   "mdc": "H",
+   "medium": 29927
+  },
+  "GC": {
+   "basis": {
+    "cc": 0.9827,
+    "cost": 0.0173
+   },
+   "codes": 24,
+   "exemplar": "Non-Malignant, Hepatobiliary or Pancreatic Disorders, without Interven",
+   "fce": 300018,
+   "high": 22703,
+   "low": 98596,
+   "lowShare": 0.3286,
+   "mdc": "H",
+   "medium": 178719
+  },
+  "HC": {
+   "basis": {
+    "cc": 0.7249,
+    "cost": 0.1613,
+    "explicit": 0.1138
+   },
+   "codes": 74,
+   "exemplar": "Degenerative Spinal Conditions without Interventions, with CC Score 0-",
+   "fce": 210714,
+   "high": 37964,
+   "low": 66593,
+   "lowShare": 0.316,
+   "mdc": "B",
+   "medium": 106157
+  },
+  "HD": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 35,
+   "exemplar": "Inflammatory, Spine, Joint or Connective Tissue Disorders, with CC Sco",
+   "fce": 440851,
+   "high": 56164,
+   "low": 141387,
+   "lowShare": 0.3207,
+   "mdc": "I",
+   "medium": 243300
+  },
+  "HE": {
+   "basis": {
+    "cc": 0.9897,
+    "cost": 0.0103
+   },
+   "codes": 84,
+   "exemplar": "Hip Fracture without Interventions, with CC Score 4-7",
+   "fce": 217154,
+   "high": 35241,
+   "low": 47217,
+   "lowShare": 0.2174,
+   "mdc": "X",
+   "medium": 134696
+  },
+  "HN": {
+   "basis": {
+    "cc": 0.0411,
+    "cost": 0.0098,
+    "explicit": 0.9492
+   },
+   "codes": 111,
+   "exemplar": "Minor Hand Procedures for Non-Trauma, 19 years and over",
+   "fce": 336679,
+   "high": 155493,
+   "low": 99710,
+   "lowShare": 0.2962,
+   "mdc": "I",
+   "medium": 81476
+  },
+  "HT": {
+   "basis": {
+    "cc": 0.0189,
+    "explicit": 0.9811
+   },
+   "codes": 87,
+   "exemplar": "Major Hand Procedures for Trauma, 19 years and over, with CC Score 0-1",
+   "fce": 190604,
+   "high": 141361,
+   "low": 4193,
+   "lowShare": 0.022,
+   "mdc": "I",
+   "medium": 45050
+  },
+  "JA": {
+   "basis": {
+    "cc": 0.4236,
+    "cost": 0.0634,
+    "explicit": 0.513
+   },
+   "codes": 35,
+   "exemplar": "Unilateral Major Breast Procedures with CC Score 0-2",
+   "fce": 134789,
+   "high": 59657,
+   "low": 32305,
+   "lowShare": 0.2397,
+   "mdc": "J",
+   "medium": 42827
+  },
+  "JB": {
+   "basis": {
+    "cost": 1.0
+   },
+   "codes": 38,
+   "exemplar": "Treatment of Burn, with Severity Score 3, with Intervention Score 0, 1",
+   "fce": 12173,
+   "high": 1150,
+   "low": 6457,
+   "lowShare": 0.5304,
+   "mdc": "Y",
+   "medium": 4566
+  },
+  "JC": {
+   "basis": {
+    "cost": 0.0252,
+    "explicit": 0.9748
+   },
+   "codes": 11,
+   "exemplar": "Minor Skin Procedures, 19 years and over",
+   "fce": 312270,
+   "high": 20767,
+   "low": 195748,
+   "lowShare": 0.6269,
+   "mdc": "J",
+   "medium": 95755
+  },
+  "JD": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 10,
+   "exemplar": "Skin Disorders without Interventions, with CC Score 2-5",
+   "fce": 243653,
+   "high": 9012,
+   "low": 58013,
+   "lowShare": 0.2381,
+   "mdc": "J",
+   "medium": 176628
+  },
+  "KA": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 18,
+   "exemplar": "Thyroid Procedures with CC Score 0-1",
+   "fce": 51309,
+   "high": 13296,
+   "low": 28771,
+   "lowShare": 0.5607,
+   "mdc": "K",
+   "medium": 9242
+  },
+  "KB": {
+   "basis": {
+    "cc": 0.9963,
+    "cost": 0.0037
+   },
+   "codes": 12,
+   "exemplar": "Diabetes with Hyperglycaemic Disorders, with CC Score 2-4",
+   "fce": 93691,
+   "high": 37082,
+   "low": 15091,
+   "lowShare": 0.1611,
+   "mdc": "K",
+   "medium": 41518
+  },
+  "KC": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 9,
+   "exemplar": "Inborn Errors of Metabolism with CC Score 0-2",
+   "fce": 239906,
+   "high": 59004,
+   "low": 88245,
+   "lowShare": 0.3678,
+   "mdc": "K",
+   "medium": 92657
+  },
+  "LA": {
+   "basis": {
+    "cc": 0.9865,
+    "cost": 0.0135
+   },
+   "codes": 44,
+   "exemplar": "Kidney or Urinary Tract Infections, without Interventions, with CC Sco",
+   "fce": 419014,
+   "high": 33197,
+   "low": 60766,
+   "lowShare": 0.145,
+   "mdc": "L",
+   "medium": 325051
+  },
+  "LB": {
+   "basis": {
+    "cc": 0.3427,
+    "cost": 0.2669,
+    "explicit": 0.3905
+   },
+   "codes": 149,
+   "exemplar": "Minor Bladder Procedures, 19 years and over",
+   "fce": 678271,
+   "high": 101012,
+   "low": 326393,
+   "lowShare": 0.4812,
+   "mdc": "L",
+   "medium": 250866
+  },
+  "MA": {
+   "basis": {
+    "cc": 0.0271,
+    "cost": 0.5441,
+    "explicit": 0.4288
+   },
+   "codes": 60,
+   "exemplar": "Surgical, Abortion or Miscarriage Care, under 14 weeks Gestation, with",
+   "fce": 245759,
+   "high": 117408,
+   "low": 79787,
+   "lowShare": 0.3247,
+   "mdc": "N",
+   "medium": 48564
+  },
+  "MB": {
+   "basis": {
+    "cc": 0.5728,
+    "cost": 0.4272
+   },
+   "codes": 17,
+   "exemplar": "Threatened or Spontaneous Miscarriage, without Interventions",
+   "fce": 128825,
+   "high": 5513,
+   "low": 63239,
+   "lowShare": 0.4909,
+   "mdc": "N",
+   "medium": 60073
+  },
+  "MC": {
+   "basis": {
+    "cost": 1.0
+   },
+   "codes": 9,
+   "exemplar": "Oocyte Recovery",
+   "fce": 7174,
+   "high": 682,
+   "low": 114,
+   "lowShare": 0.0159,
+   "mdc": "N",
+   "medium": 6378
+  },
+  "NZ": {
+   "basis": {
+    "cc": 0.6401,
+    "cost": 0.1019,
+    "explicit": 0.2581
+   },
+   "codes": 55,
+   "exemplar": "Ante-Natal Major Disorders with CC Score 0-1",
+   "fce": 1156963,
+   "high": 480219,
+   "low": 439029,
+   "lowShare": 0.3795,
+   "mdc": "O",
+   "medium": 237715
+  },
+  "PB": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 19,
+   "exemplar": "Neonatal Diagnoses, Admitted from Other Location or Born in Hospital, ",
+   "fce": 172514,
+   "high": 7045,
+   "low": 41836,
+   "lowShare": 0.2425,
+   "mdc": "P",
+   "medium": 123633
+  },
+  "PC": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 4,
+   "exemplar": "Paediatric, Head, Neck or Ear Disorders, with CC Score 0",
+   "fce": 56120,
+   "high": 1044,
+   "low": 32356,
+   "lowShare": 0.5766,
+   "mdc": "D",
+   "medium": 22720
+  },
+  "PD": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 24,
+   "exemplar": "Paediatric Acute Bronchiolitis with CC Score 0",
+   "fce": 181803,
+   "high": 12224,
+   "low": 85905,
+   "lowShare": 0.4725,
+   "mdc": "E",
+   "medium": 83674
+  },
+  "PE": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 12,
+   "exemplar": "Paediatric Cardiac Conditions with CC Score 3-5",
+   "fce": 23387,
+   "high": 6640,
+   "low": 4702,
+   "lowShare": 0.2011,
+   "mdc": "F",
+   "medium": 12045
+  },
+  "PF": {
+   "basis": {
+    "cc": 0.9312,
+    "explicit": 0.0688
+   },
+   "codes": 17,
+   "exemplar": "Paediatric, Infectious or Non-Infectious Gastroenteritis, with CC Scor",
+   "fce": 125929,
+   "high": 43979,
+   "low": 55509,
+   "lowShare": 0.4408,
+   "mdc": "E",
+   "medium": 26441
+  },
+  "PG": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 3,
+   "exemplar": "Paediatric, Hepatobiliary or Pancreatic Disorders, with CC Score 2+",
+   "fce": 4255,
+   "high": 2054,
+   "low": 1308,
+   "lowShare": 0.3074,
+   "mdc": "H",
+   "medium": 893
+  },
+  "PH": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 4,
+   "exemplar": "Paediatric, Musculoskeletal or Connective Tissue Disorders, with CC Sc",
+   "fce": 27812,
+   "high": 3171,
+   "low": 10881,
+   "lowShare": 0.3912,
+   "mdc": "I",
+   "medium": 13760
+  },
+  "PJ": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 7,
+   "exemplar": "Paediatric Skin Disorders with CC Score 0",
+   "fce": 19258,
+   "high": 2105,
+   "low": 10552,
+   "lowShare": 0.5479,
+   "mdc": "J",
+   "medium": 6601
+  },
+  "PK": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 11,
+   "exemplar": "Paediatric Endocrine Disorders, excluding Diabetes Mellitus, with CC S",
+   "fce": 24780,
+   "high": 6972,
+   "low": 10247,
+   "lowShare": 0.4135,
+   "mdc": "K",
+   "medium": 7561
+  },
+  "PL": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 10,
+   "exemplar": "Paediatric Other Renal Diseases with CC Score 0",
+   "fce": 22792,
+   "high": 5752,
+   "low": 9557,
+   "lowShare": 0.4193,
+   "mdc": "L",
+   "medium": 7483
+  },
+  "PM": {
+   "basis": {
+    "cc": 0.4595,
+    "cost": 0.5405
+   },
+   "codes": 14,
+   "exemplar": "Paediatric Neoplasm Diagnoses with length of stay 0 days",
+   "fce": 26274,
+   "high": 5713,
+   "low": 15834,
+   "lowShare": 0.6026,
+   "mdc": "R",
+   "medium": 4727
+  },
+  "PN": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 9,
+   "exemplar": "Paediatric Blood Cell Disorders with CC Score 1-4",
+   "fce": 24169,
+   "high": 9381,
+   "low": 9190,
+   "lowShare": 0.3802,
+   "mdc": "Q",
+   "medium": 5598
+  },
+  "PP": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 2,
+   "exemplar": "Paediatric Non-Surgical Ophthalmology with CC Score 0",
+   "fce": 6830,
+   "high": 2166,
+   "low": 4664,
+   "lowShare": 0.6829,
+   "mdc": "C",
+   "medium": 0
+  },
+  "PQ": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 2,
+   "exemplar": "Paediatric Disorders of Immunity with CC Score 1+",
+   "fce": 2046,
+   "high": 1397,
+   "low": 649,
+   "lowShare": 0.3172,
+   "mdc": "Q",
+   "medium": 0
+  },
+  "PR": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 22,
+   "exemplar": "Paediatric Febrile Convulsions with CC Score 1-3",
+   "fce": 65926,
+   "high": 12979,
+   "low": 20349,
+   "lowShare": 0.3087,
+   "mdc": "B",
+   "medium": 32598
+  },
+  "PT": {
+   "basis": {
+    "cc": 1.0
+   },
+   "codes": 4,
+   "exemplar": "Paediatric Behavioural Disorders with CC Score 1+",
+   "fce": 17004,
+   "high": 9944,
+   "low": 7060,
+   "lowShare": 0.4152,
+   "mdc": "U",
+   "medium": 0
+  },
+  "PV": {
+   "basis": {
+    "explicit": 1.0
+   },
+   "codes": 7,
+   "exemplar": "Paediatric Minor Injury without Intracranial Injury, with CC Score 0",
+   "fce": 29635,
+   "high": 1670,
+   "low": 24373,
+   "lowShare": 0.8224,
+   "mdc": "X",
+   "medium": 3592
+  },
+  "PW": {
+   "basis": {
+    "cc": 0.1004,
+    "explicit": 0.8996
+   },
+   "codes": 15,
+   "exemplar": "Paediatric Minor Infections with CC Score 1-3",
+   "fce": 159103,
+   "high": 20330,
+   "low": 96045,
+   "lowShare": 0.6037,
+   "mdc": "T",
+   "medium": 42728
+  },
+  "PX": {
+   "basis": {
+    "cc": 0.9771,
+    "cost": 0.0229
+   },
+   "codes": 46,
+   "exemplar": "Paediatric, Examination, Follow-up, Special Screening or Other Admissi",
+   "fce": 159615,
+   "high": 34080,
+   "low": 69213,
+   "lowShare": 0.4336,
+   "mdc": "Z",
+   "medium": 56322
+  },
+  "RD": {
+   "basis": {
+    "cost": 1.0
+   },
+   "codes": 2,
+   "exemplar": "Admission or Attendance for Diagnostic Imaging under General Anaesthet",
+   "fce": 425,
+   "high": 269,
+   "low": 156,
+   "lowShare": 0.3671,
+   "mdc": "Z",
+   "medium": 0
+  },
+  "RN": {
+   "basis": {},
+   "codes": 1,
+   "exemplar": "Admission or Attendance for Nuclear Medicine",
+   "fce": 0,
+   "high": 0,
+   "low": 0,
+   "lowShare": null,
+   "mdc": "Z",
+   "medium": 0
+  },
+  "SA": {
+   "basis": {
+    "cc": 0.6533,
+    "cost": 0.3467
+   },
+   "codes": 104,
+   "exemplar": "Single Plasma Exchange or Other Intravenous Blood Transfusion, 19 year",
+   "fce": 657481,
+   "high": 61903,
+   "low": 300019,
+   "lowShare": 0.4563,
+   "mdc": "Q",
+   "medium": 295559
+  },
+  "SB": {
+   "basis": {
+    "cost": 1.0
+   },
+   "codes": 1,
+   "exemplar": "Same Day Chemotherapy Admission or Attendance",
+   "fce": 25347,
+   "high": 0,
+   "low": 0,
+   "lowShare": 0.0,
+   "mdc": "Q",
+   "medium": 25347
+  },
+  "SC": {
+   "basis": {
+    "cost": 1.0
+   },
+   "codes": 1,
+   "exemplar": "Same Day Radiotherapy Admission or Attendance (excluding Brachytherapy",
+   "fce": 7111,
+   "high": 0,
+   "low": 0,
+   "lowShare": 0.0,
+   "mdc": "Q",
+   "medium": 7111
+  },
+  "UZ": {
+   "basis": {
+    "cost": 1.0
+   },
+   "codes": 1,
+   "exemplar": "Data Invalid for Grouping",
+   "fce": 89672,
+   "high": 0,
+   "low": 0,
+   "lowShare": 0.0,
+   "mdc": null,
+   "medium": 89672
+  },
+  "VA": {
+   "basis": {
+    "cost": 1.0
+   },
+   "codes": 24,
+   "exemplar": "Multiple Trauma with Diagnosis Score >=51, with Intervention Score 0",
+   "fce": 94961,
+   "high": 5661,
+   "low": 72298,
+   "lowShare": 0.7613,
+   "mdc": "W",
+   "medium": 17002
+  },
+  "WD": {
+   "basis": {
+    "cost": 1.0
+   },
+   "codes": 9,
+   "exemplar": "Delirium, treated by a Non-Specialist Mental Health Service Provider",
+   "fce": 172536,
+   "high": 85535,
+   "low": 70298,
+   "lowShare": 0.4074,
+   "mdc": "U",
+   "medium": 16703
+  },
+  "WH": {
+   "basis": {
+    "cc": 0.6023,
+    "cost": 0.3977
+   },
+   "codes": 68,
+   "exemplar": "Procedure Not Carried Out, for Other or Unspecified Reasons",
+   "fce": 718825,
+   "high": 76605,
+   "low": 405490,
+   "lowShare": 0.5641,
+   "mdc": "Z",
+   "medium": 236730
+  },
+  "WJ": {
+   "basis": {
+    "cc": 0.9087,
+    "cost": 0.0772,
+    "explicit": 0.0141
+   },
+   "codes": 38,
+   "exemplar": "Sepsis without Interventions, with CC Score 5-8",
+   "fce": 289307,
+   "high": 60707,
+   "low": 36260,
+   "lowShare": 0.1253,
+   "mdc": "T",
+   "medium": 192340
+  },
+  "YA": {
+   "basis": {
+    "cc": 0.2553,
+    "cost": 0.7447
+   },
+   "codes": 11,
+   "exemplar": "Percutaneous Transluminal Arteriography, of Intracranial or Extracrani",
+   "fce": 9551,
+   "high": 2194,
+   "low": 4032,
+   "lowShare": 0.4222,
+   "mdc": "F",
+   "medium": 3325
+  },
+  "YC": {
+   "basis": {
+    "cost": 1.0
+   },
+   "codes": 3,
+   "exemplar": "Image Guided Core Needle Biopsy of Lesion of Neck",
+   "fce": 5334,
+   "high": 786,
+   "low": 2213,
+   "lowShare": 0.4149,
+   "mdc": null,
+   "medium": 2335
+  },
+  "YD": {
+   "basis": {
+    "cost": 1.0
+   },
+   "codes": 5,
+   "exemplar": "Percutaneous Biopsy of Lesion of, Lung or Mediastinum",
+   "fce": 27394,
+   "high": 9402,
+   "low": 8010,
+   "lowShare": 0.2924,
+   "mdc": "E",
+   "medium": 9982
+  },
+  "YF": {
+   "basis": {
+    "cc": 0.4338,
+    "cost": 0.5662
+   },
+   "codes": 9,
+   "exemplar": "Percutaneous Biopsy of Abdominal Cavity",
+   "fce": 13203,
+   "high": 2359,
+   "low": 6993,
+   "lowShare": 0.5297,
+   "mdc": null,
+   "medium": 3851
+  },
+  "YG": {
+   "basis": {
+    "cc": 0.2078,
+    "cost": 0.7922
+   },
+   "codes": 16,
+   "exemplar": "Percutaneous Punch Biopsy of Lesion of Liver, 19 years and over",
+   "fce": 16340,
+   "high": 2596,
+   "low": 12361,
+   "lowShare": 0.7565,
+   "mdc": "H",
+   "medium": 1383
+  },
+  "YH": {
+   "basis": {
+    "cost": 1.0
+   },
+   "codes": 11,
+   "exemplar": "Percutaneous Aspiration of Joint, 19 years and over",
+   "fce": 16316,
+   "high": 978,
+   "low": 13302,
+   "lowShare": 0.8153,
+   "mdc": "I",
+   "medium": 2036
+  },
+  "YJ": {
+   "basis": {
+    "cost": 1.0
+   },
+   "codes": 9,
+   "exemplar": "Ultrasound Guided Core Needle Biopsy of Lesion of Breast",
+   "fce": 7679,
+   "high": 4096,
+   "low": 1719,
+   "lowShare": 0.2239,
+   "mdc": "J",
+   "medium": 1864
+  },
+  "YL": {
+   "basis": {
+    "cost": 1.0
+   },
+   "codes": 9,
+   "exemplar": "Unilateral, Percutaneous Insertion of, Ureteric Stent or Nephrostomy",
+   "fce": 22125,
+   "high": 876,
+   "low": 10037,
+   "lowShare": 0.4536,
+   "mdc": "L",
+   "medium": 11212
+  },
+  "YQ": {
+   "basis": {
+    "cc": 0.893,
+    "cost": 0.107
+   },
+   "codes": 64,
+   "exemplar": "Peripheral Vascular Disorders with CC Score 2-4",
+   "fce": 127350,
+   "high": 23708,
+   "low": 35692,
+   "lowShare": 0.2803,
+   "mdc": "F",
+   "medium": 67950
+  },
+  "YR": {
+   "basis": {
+    "cc": 0.1388,
+    "cost": 0.8612
+   },
+   "codes": 75,
+   "exemplar": "Attention to Central Venous Catheter, 19 years and over",
+   "fce": 181999,
+   "high": 17427,
+   "low": 121713,
+   "lowShare": 0.6688,
+   "mdc": null,
+   "medium": 42859
+  }
+ },
+ "mdc": {
+  "B": {
+   "chapters": [
+    "AA",
+    "AB",
+    "HC",
+    "PR"
+   ],
+   "fce": 1199214,
+   "high": 235726,
+   "highShare": 0.1966,
+   "low": 352327,
+   "lowShare": 0.2938,
+   "medium": 611161
+  },
+  "C": {
+   "chapters": [
+    "BZ",
+    "PP"
+   ],
+   "fce": 513387,
+   "high": 148449,
+   "highShare": 0.2892,
+   "low": 191842,
+   "lowShare": 0.3737,
+   "medium": 173096
+  },
+  "D": {
+   "chapters": [
+    "CA",
+    "CB",
+    "CD",
+    "PC"
+   ],
+   "fce": 613904,
+   "high": 218412,
+   "highShare": 0.3558,
+   "low": 179241,
+   "lowShare": 0.292,
+   "medium": 216251
+  },
+  "E": {
+   "chapters": [
+    "DZ",
+    "PD",
+    "PF",
+    "YD"
+   ],
+   "fce": 1552006,
+   "high": 271645,
+   "highShare": 0.175,
+   "low": 299154,
+   "lowShare": 0.1928,
+   "medium": 981207
+  },
+  "F": {
+   "chapters": [
+    "EB",
+    "EC",
+    "ED",
+    "EY",
+    "PE",
+    "YA",
+    "YQ"
+   ],
+   "fce": 1589098,
+   "high": 268847,
+   "highShare": 0.1692,
+   "low": 483584,
+   "lowShare": 0.3043,
+   "medium": 836667
+  },
+  "G": {
+   "chapters": [
+    "FD",
+    "FE",
+    "FF"
+   ],
+   "fce": 2866214,
+   "high": 159167,
+   "highShare": 0.0555,
+   "low": 1346662,
+   "lowShare": 0.4698,
+   "medium": 1360385
+  },
+  "H": {
+   "chapters": [
+    "GA",
+    "GB",
+    "GC",
+    "PG",
+    "YG"
+   ],
+   "fce": 435089,
+   "high": 49258,
+   "highShare": 0.1132,
+   "low": 150772,
+   "lowShare": 0.3465,
+   "medium": 235059
+  },
+  "I": {
+   "chapters": [
+    "HD",
+    "HN",
+    "HT",
+    "PH",
+    "YH"
+   ],
+   "fce": 1012262,
+   "high": 357167,
+   "highShare": 0.3528,
+   "low": 269473,
+   "lowShare": 0.2662,
+   "medium": 385622
+  },
+  "J": {
+   "chapters": [
+    "JA",
+    "JC",
+    "JD",
+    "PJ",
+    "YJ"
+   ],
+   "fce": 717649,
+   "high": 95637,
+   "highShare": 0.1333,
+   "low": 298337,
+   "lowShare": 0.4157,
+   "medium": 323675
+  },
+  "K": {
+   "chapters": [
+    "KA",
+    "KB",
+    "KC",
+    "PK"
+   ],
+   "fce": 409686,
+   "high": 116354,
+   "highShare": 0.284,
+   "low": 142354,
+   "lowShare": 0.3475,
+   "medium": 150978
+  },
+  "L": {
+   "chapters": [
+    "LA",
+    "LB",
+    "PL",
+    "YL"
+   ],
+   "fce": 1142202,
+   "high": 140837,
+   "highShare": 0.1233,
+   "low": 406753,
+   "lowShare": 0.3561,
+   "medium": 594612
+  },
+  "N": {
+   "chapters": [
+    "MA",
+    "MB",
+    "MC"
+   ],
+   "fce": 381758,
+   "high": 123603,
+   "highShare": 0.3238,
+   "low": 143140,
+   "lowShare": 0.3749,
+   "medium": 115015
+  },
+  "O": {
+   "chapters": [
+    "NZ"
+   ],
+   "fce": 1156963,
+   "high": 480219,
+   "highShare": 0.4151,
+   "low": 439029,
+   "lowShare": 0.3795,
+   "medium": 237715
+  },
+  "P": {
+   "chapters": [
+    "PB"
+   ],
+   "fce": 172514,
+   "high": 7045,
+   "highShare": 0.0408,
+   "low": 41836,
+   "lowShare": 0.2425,
+   "medium": 123633
+  },
+  "Q": {
+   "chapters": [
+    "PN",
+    "PQ",
+    "SA",
+    "SB",
+    "SC"
+   ],
+   "fce": 716154,
+   "high": 72681,
+   "highShare": 0.1015,
+   "low": 309858,
+   "lowShare": 0.4327,
+   "medium": 333615
+  },
+  "R": {
+   "chapters": [
+    "PM"
+   ],
+   "fce": 26274,
+   "high": 5713,
+   "highShare": 0.2174,
+   "low": 15834,
+   "lowShare": 0.6026,
+   "medium": 4727
+  },
+  "T": {
+   "chapters": [
+    "DX",
+    "PW",
+    "WJ"
+   ],
+   "fce": 710317,
+   "high": 171326,
+   "highShare": 0.2412,
+   "low": 142414,
+   "lowShare": 0.2005,
+   "medium": 396577
+  },
+  "U": {
+   "chapters": [
+    "PT",
+    "WD"
+   ],
+   "fce": 189540,
+   "high": 95479,
+   "highShare": 0.5037,
+   "low": 77358,
+   "lowShare": 0.4081,
+   "medium": 16703
+  },
+  "W": {
+   "chapters": [
+    "VA"
+   ],
+   "fce": 94961,
+   "high": 5661,
+   "highShare": 0.0596,
+   "low": 72298,
+   "lowShare": 0.7613,
+   "medium": 17002
+  },
+  "X": {
+   "chapters": [
+    "HE",
+    "PV"
+   ],
+   "fce": 246789,
+   "high": 36911,
+   "highShare": 0.1496,
+   "low": 71590,
+   "lowShare": 0.2901,
+   "medium": 138288
+  },
+  "Y": {
+   "chapters": [
+    "JB"
+   ],
+   "fce": 12173,
+   "high": 1150,
+   "highShare": 0.0945,
+   "low": 6457,
+   "lowShare": 0.5304,
+   "medium": 4566
+  },
+  "Z": {
+   "chapters": [
+    "PX",
+    "RD",
+    "RN",
+    "WH"
+   ],
+   "fce": 878865,
+   "high": 110954,
+   "highShare": 0.1262,
+   "low": 474859,
+   "lowShare": 0.5403,
+   "medium": 293052
+  }
+ },
+ "source": {
+  "dataset": "NHS England National Schedule of NHS Costs, FY2021/22 (v4), sheet APC",
+  "file": "2-National-schedule-of-NHS-costs-FY21-22-v4.xlsx",
+  "grouping": "HRG4+ chapters mapped to AR-DRG MDC at chapter (body-system) level only",
+  "note": "HRG4+ is a different grouper to AR-DRG v9.0 and there is no official HRG4+->AR-DRG crosswalk. Mapping is MDC-level; several AR-DRGs share one chapter figure. This is NOT a per-DRG equivalence."
+ },
+ "totals": {
+  "codes": 2568,
+  "fce": 16927227,
+  "mappedFce": 16637019,
+  "mappedPct": 0.9829,
+  "tierBasis": {
+   "cc": 0.6073,
+   "cost": 0.2406,
+   "explicit": 0.1521
+  },
+  "unmapped": {
+   "UZ": "Data invalid for grouping",
+   "YC": "Image-guided neck biopsy (cross-cutting, no MDC)",
+   "YF": "Percutaneous abdominal cavity drainage (cross-cutting, no MDC)",
+   "YR": "Central venous catheter care (cross-cutting, no MDC)"
+  }
+ }
+}

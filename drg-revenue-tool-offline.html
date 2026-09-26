@@ -166,7 +166,11 @@ footer{padding:12px 24px;font-size:11px;color:var(--muted);}
       <div id="benchSwitcher" class="filters" style="margin-bottom:6px;"></div>
       <div id="chapterTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
       <div class="tblwrap" style="max-height:560px"><table id="tblChapter"><thead></thead><tbody></tbody></table></div>
-      <p class="note" style="margin-top:10px">Each <b>X %</b> column = the share of episodes expected to fall in the MINOR complexity tier under that benchmark. <b>UK</b> is the headline benchmark — per-DRG values are calibrated from the UK chapter anchors (NHS National Cost Collection 2023/24, HRG4+) using the evidenced within-chapter pattern from the AIHW cube; <b>AU</b> is the per-DRG AIHW AR-DRG v9.0 cube (2019–20, 306/309 evidenced) and is the like-for-like structural anchor; <b>UAE</b> and <b>KSA</b> are chapter-level. <b>Observed %</b> = your uploaded data (peer) or the KSA baseline. Insured % = claims activity ÷ DARS activity (only insured cases generate revenue).</p>
+      <p class="note" style="margin-top:10px">Each <b>X %</b> column = the share of episodes expected to fall in the MINOR complexity tier under that benchmark. <b>UK per-DRG is DERIVED, not observed:</b> HRG4+ is a different grouper to AR-DRG v9.0, so each value is a UK chapter anchor scaled by the Australian within-chapter pattern — it is a calibration, not NHS per-DRG data. The <b>Real UK low %</b> column and the "Real UK casemix" panel below show actual NHS activity and complexity for the same chapter. <b>AU</b> is the per-DRG AIHW AR-DRG v9.0 cube (2019–20, 306/309 evidenced) and is the only true per-DRG source here; <b>UAE</b> and <b>KSA</b> are chapter-level assumptions. <b>Observed %</b> = your uploaded data (peer) or the KSA baseline. Insured % = claims activity ÷ DARS activity (only insured cases generate revenue).</p>
+    </div>
+    <div class="card">
+      <h3>🇬🇧 Real UK casemix — NHS National Cost Collection <span class="note" style="font-weight:400">— actual NHS episodes and complexity split per body-system chapter, vs the UK anchor this tool assumes</span></h3>
+      <div id="ukCasemix"></div>
     </div>
     <div class="card">
       <h3>📚 Benchmark evidence</h3>
@@ -309,12 +313,17 @@ function renderRank(){
       <td>${r.risk_flag?'<span class="badge b-low">HIGH</span>':'<span class="badge b-high">std</span>'}</td></tr>`; }).join("") + "</tbody>";
 }
 // ---- benchmarks: chapter tabs with real per-DRG data
-const CHAPTER_NAMES = {A:"Pre-MDC — Intervention", B:"Nervous system", C:"Eye", D:"Ear, nose & throat",
-  E:"Respiratory", F:"Digestive", G:"Hepatobiliary & pancreas", H:"Musculoskeletal", I:"Skin, breast & burns",
-  J:"Endocrine", K:"Urinary", L:"Male reproductive", M:"Female reproductive", N:"Pregnancy & childbirth",
-  O:"Newborns & neonates", P:"Newborns & neonates (pre-MDC)", Q:"Blood & immune", R:"Myeloproliferative",
-  S:"Infectious", T:"Mental health", U:"Injuries & trauma", V:"Burns & trauma", W:"Multiple significant trauma",
-  X:"Factors influencing health", Y:"Infections & parasitic", Z:"Other", "8":"MDC 8"};
+// Chapter labels are DERIVED from the price table's own body_system field so a
+// label can never drift from the data it describes. (The previous hard-coded
+// map was shifted by one letter from MDC F onward — e.g. it labelled MDC F
+// "Digestive" while the data in MDC F is Circulatory — which mislabelled the
+// whole Benchmarks tab.)
+const CHAPTER_NAMES = (() => {
+  const m = {};
+  RANK.forEach(r => { if (r.mdc && !m[r.mdc]) m[r.mdc] = r.body_system; });
+  m["8"] = "Pre-MDC / unrelated OR";
+  return m;
+})();
 const benchFor = drg => {
   const pd = BENCH.per_drg && BENCH.per_drg[drg];
   if (pd) return Object.values(pd)[0];
@@ -353,6 +362,43 @@ const BENCH_BY_ID = Object.fromEntries(BENCHMARKS.map(b => [b.id, b]));
 const BENCH_COUNTRY_KEY = { uk:"United Kingdom (NHS HRG)", au:"Australia (AR-DRG v9.0)", uae:"UAE (DOH Abu Dhabi)", ksa:"KSA (CHI baseline)" };
 let activeBench = "uk";     // UK is the main benchmark
 let PEER_SHARE = {};        // drg -> observed minor share aggregated from the uploaded file
+
+// ---- REAL UK (NHS) CASEMIX --------------------------------------------------
+// Extracted from the NHS England National Schedule of NHS Costs FY2021/22 (v4),
+// sheet "APC", by tools/build_uk_casemix.py — 16.9m Finished Consultant Episodes
+// across 2,568 HRG4+ codes. Unlike the calibrated UK benchmark below, these are
+// real NHS activity counts with a real Low/Medium/High complexity split.
+// Limitation: HRG4+ is a different grouper to AR-DRG v9.0 and there is no
+// official crosswalk, so this is mapped at MDC (body-system) chapter level only —
+// it is NOT a per-DRG equivalence.
+const UK_CASEMIX = { source: "NHS England National Schedule of NHS Costs FY2021/22 (v4), sheet APC — HRG4+ national activity",
+  note: "Real NHS FCE counts and a Low/Medium/High complexity split. Mapped to AR-DRG MDC at chapter (body-system) level only — HRG4+ is a different grouper to AR-DRG v9.0 and there is no official crosswalk, so this is NOT a per-DRG equivalence.",
+  totals: 16927227,
+  basis: {"cc": 0.6073, "cost": 0.2406, "explicit": 0.1521},
+  mdc: {
+    G: {fce:2866214, low:1346662, med:1360385, high:159167, lowShare:0.4698, ch:["FD", "FE", "FF"]},
+    F: {fce:1589098, low:483584, med:836667, high:268847, lowShare:0.3043, ch:["EB", "EC", "ED", "EY", "PE", "YA", "YQ"]},
+    E: {fce:1552006, low:299154, med:981207, high:271645, lowShare:0.1928, ch:["DZ", "PD", "PF", "YD"]},
+    B: {fce:1199214, low:352327, med:611161, high:235726, lowShare:0.2938, ch:["AA", "AB", "HC", "PR"]},
+    O: {fce:1156963, low:439029, med:237715, high:480219, lowShare:0.3795, ch:["NZ"]},
+    L: {fce:1142202, low:406753, med:594612, high:140837, lowShare:0.3561, ch:["LA", "LB", "PL", "YL"]},
+    I: {fce:1012262, low:269473, med:385622, high:357167, lowShare:0.2662, ch:["HD", "HN", "HT", "PH", "YH"]},
+    Z: {fce:878865, low:474859, med:293052, high:110954, lowShare:0.5403, ch:["PX", "RD", "RN", "WH"]},
+    J: {fce:717649, low:298337, med:323675, high:95637, lowShare:0.4157, ch:["JA", "JC", "JD", "PJ", "YJ"]},
+    Q: {fce:716154, low:309858, med:333615, high:72681, lowShare:0.4327, ch:["PN", "PQ", "SA", "SB", "SC"]},
+    T: {fce:710317, low:142414, med:396577, high:171326, lowShare:0.2005, ch:["DX", "PW", "WJ"]},
+    D: {fce:613904, low:179241, med:216251, high:218412, lowShare:0.292, ch:["CA", "CB", "CD", "PC"]},
+    C: {fce:513387, low:191842, med:173096, high:148449, lowShare:0.3737, ch:["BZ", "PP"]},
+    H: {fce:435089, low:150772, med:235059, high:49258, lowShare:0.3465, ch:["GA", "GB", "GC", "PG", "YG"]},
+    K: {fce:409686, low:142354, med:150978, high:116354, lowShare:0.3475, ch:["KA", "KB", "KC", "PK"]},
+    N: {fce:381758, low:143140, med:115015, high:123603, lowShare:0.3749, ch:["MA", "MB", "MC"]},
+    X: {fce:246789, low:71590, med:138288, high:36911, lowShare:0.2901, ch:["HE", "PV"]},
+    U: {fce:189540, low:77358, med:16703, high:95479, lowShare:0.4081, ch:["PT", "WD"]},
+    P: {fce:172514, low:41836, med:123633, high:7045, lowShare:0.2425, ch:["PB"]},
+    W: {fce:94961, low:72298, med:17002, high:5661, lowShare:0.7613, ch:["VA"]},
+    R: {fce:26274, low:15834, med:4727, high:5713, lowShare:0.6026, ch:["PM"]},
+    Y: {fce:12173, low:6457, med:4566, high:1150, lowShare:0.5304, ch:["JB"]},
+  }};
 
 // Benchmark value (0..1) for a DRG. AU uses the evidenced per-DRG value where
 // present and falls back to its chapter default; UK/UAE/KSA are chapter-level;
@@ -442,7 +488,7 @@ function renderBench(){
     `<button class="act ${c===curChapter?"":"navy"}" style="${c===curChapter?"":"background:var(--navy);"}" onclick="curChapter='${c}';renderBench()">${c}</button>`).join("");
   const rows = RANK.filter(r => r.mdc === curChapter);
   const outs = drgOutput(); const outIdx = {}; outs.forEach(o => outIdx[o.drg] = o);
-  const head = BENCHMARKS.map(x => `<th>${x.short} %</th>`).join("");
+  const head = BENCHMARKS.map(x => `<th>${x.short} %</th>`).join("") + `<th>Real UK low %<br><span class="note">NHS chapter</span></th>`;
   $("tblChapter").innerHTML = `<thead><tr><th>DRG</th><th>Description</th><th>Minor (MINC) SAR</th><th>Major (MAJC) SAR</th><th>Uplift SAR</th>${head}<th>Observed %</th><th>Split (${BENCH_BY_ID[activeBench].short})</th><th>Insured %</th><th>Evidence</th></tr></thead><tbody>` +
     rows.map(r => {
       const o = outIdx[r.drg], ip = insuredPct(r);
@@ -457,6 +503,7 @@ function renderBench(){
         <td class="num">${fmtSAR(r.minor_sar)}</td><td class="num">${fmtSAR(r.major_sar)}</td>
         <td class="num">${fmtSAR(r.uplift_sar)}</td>
         ${cells}
+        <td class="num">${UK_CASEMIX.mdc[r.mdc] ? "<b>"+fmtPct(UK_CASEMIX.mdc[r.mdc].lowShare)+"</b>" : "—"} <span class="note">(${UK_CASEMIX.mdc[r.mdc] ? UK_CASEMIX.mdc[r.mdc].ch.join("/") : "no NHS chapter"})</span></td>
         <td class="num">${fmtPct(o.observed)} <span class="note">(${o.observedFrom==="peer"?"your data":"KSA base"})</span></td>
         <td><div style="display:flex;width:200px;"><div class="bar" style="width:${abv*200}px;background:${BENCH_BY_ID[activeBench].colour};"></div><div class="bar major" style="width:${(1-abv)*200}px;"></div></div></td>
         <td class="num">${ip===null?"—":fmtPct(ip)}</td>
@@ -809,9 +856,39 @@ function downloadResults(){
 }
 
 // init
-// One refresh entry point so every tab shows the same benchmark and the same
-// insured-only totals.
-function renderAll(){ renderKpis(); renderTop10(); renderRank(); renderBench(); renderOutputs(); runSim(); }
+// ---- real UK casemix panel --------------------------------------------------
+function renderUkCasemix(){
+  const el = $("ukCasemix"); if (!el) return;
+  const ukAnchor = BENCH.countries["United Kingdom (NHS HRG)"];
+  const rows = Object.entries(UK_CASEMIX.mdc).map(([m, e]) => {
+    const tool = (ukAnchor.mdc && ukAnchor.mdc[m] !== undefined) ? ukAnchor.mdc[m] : ukAnchor.default;
+    return { m, e, tool, delta: e.lowShare - tool };
+  }).sort((a, b) => b.e.fce - a.e.fce);
+  const bs = UK_CASEMIX.basis;
+  const pct = v => (100 * v).toFixed(0) + "%";
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+      <div class="kpi gold"><div class="l">NHS episodes (FCE)</div><div class="v">${UK_CASEMIX.totals.toLocaleString()}</div><div class="note">FY2021/22, ${rows.length} mapped body-system chapters</div></div>
+      <div class="kpi"><div class="l">Banded from NHS wording</div><div class="v">${pct(bs.explicit)}</div><div class="note">"Very Major" … "Minimal" in the HRG description</div></div>
+      <div class="kpi"><div class="l">Banded from CC score</div><div class="v">${pct(bs.cc)}</div><div class="note">complication/comorbidity score ladder</div></div>
+      <div class="kpi"><div class="l">Banded from unit cost</div><div class="v">${pct(bs.cost)}</div><div class="note">fallback: cost tertile within chapter</div></div>
+    </div>
+    <div class="tblwrap" style="max-height:460px"><table><thead><tr>
+      <th>MDC</th><th>Body system</th><th>NHS episodes</th><th>Low</th><th>Medium</th><th>High</th>
+      <th>NHS low %</th><th>Tool's UK %</th><th>Δ pp</th><th>HRG chapter codes</th></tr></thead><tbody>` +
+    rows.map(r => { const f = r.e.fce, d = 100 * r.delta, big = Math.abs(r.delta) >= 0.10;
+      return `<tr><td><b>${r.m}</b></td><td>${CHAPTER_NAMES[r.m] || "—"}</td>
+        <td class="num">${f.toLocaleString()}</td>
+        <td class="num">${(100*r.e.low/f).toFixed(0)}%</td>
+        <td class="num">${(100*r.e.med/f).toFixed(0)}%</td>
+        <td class="num">${(100*r.e.high/f).toFixed(0)}%</td>
+        <td class="num"><b>${(100*r.e.lowShare).toFixed(1)}%</b></td>
+        <td class="num">${(100*r.tool).toFixed(0)}%</td>
+        <td class="num" style="font-weight:700;color:${big ? "var(--red)" : "var(--muted)"};">${d >= 0 ? "+" : ""}${d.toFixed(0)}${big ? " ⚠" : ""}</td>
+        <td class="note">${r.e.ch.join(", ")}</td></tr>`; }).join("") + `</tbody></table></div>
+    <p class="note" style="margin-top:10px"><b>Provenance.</b> ${UK_CASEMIX.source}. These are real NHS Finished Consultant Episodes with a real Low/Medium/High split — ${pct(bs.explicit)} of activity banded from NHS's own complexity wording, ${pct(bs.cc)} from the CC-score ladder, ${pct(bs.cost)} from unit-cost tertile. <b>Limitation:</b> ${UK_CASEMIX.note} The <b>Tool's UK %</b> column is the chapter anchor currently assumed by this tool; where Δ is large and flagged ⚠ the headline missed-revenue figure is materially sensitive to that assumption.</p>`;
+}
+function renderAll(){ renderKpis(); renderTop10(); renderRank(); renderBench(); renderUkCasemix(); renderOutputs(); runSim(); }
 renderAll();
 
 
