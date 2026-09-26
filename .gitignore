@@ -1,0 +1,10 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Large NHS source archives (not committed — public sources, re-downloadable)
+*.zip
+node_modules/
