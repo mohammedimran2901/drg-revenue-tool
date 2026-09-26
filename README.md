@@ -105,6 +105,41 @@ per-DRG `Direction` column.
 
 ---
 
+## Hosting / deployment
+
+The tool is a plain static file, so any static host works. This repo ships:
+
+- `drg-revenue-tool-offline.html` — the tool itself
+- `index.html` — redirects `/` to the tool (fallback for any host)
+- `vercel.json` — clean-URL rewrite for `/` and `noindex` headers
+
+### Option A — Vercel (one-click, auto-deploys on every push)
+
+1. Go to <https://vercel.com/new> (signed in as the **same GitHub account**).
+2. **Import Git Repository** → `mohammedimran2901/drg-revenue-tool`.
+3. Framework preset: **Other**. Build command / output directory: leave **blank**.
+4. **Deploy**. Vercel serves it at `https://drg-revenue-tool.vercel.app`.
+
+Every `git push` to `main` then redeploys automatically.
+
+### Option B — CLI
+
+```bash
+npx vercel --prod          # first run asks you to log in
+```
+
+### Option C — offline distribution
+
+Just share `drg-revenue-tool-offline.html`; it runs by double-clicking, with no
+server and no internet.
+
+> **Access note:** a `*.vercel.app` URL is publicly reachable unless you enable
+> deployment protection. The file embeds the CHI AR-DRG price table and aggregate
+> DARS/claims activity, so use Vercel Authentication / password protection (Pro) if
+> the link must be restricted to the team.
+
+---
+
 ## Version
 
 **v2.4** (2026-09-26) · Price table: AR-DRG v9.0 (CHI).
