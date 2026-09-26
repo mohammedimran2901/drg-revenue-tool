@@ -76,7 +76,7 @@ footer{padding:12px 24px;font-size:11px;color:var(--muted);}
       <h3>DRG opportunity outputs <span class="note" id="oSub" style="font-weight:400"></span></h3>
       <div class="filters">
         <label class="note" style="display:flex;gap:6px;align-items:center;">Benchmark
-          <select id="oBench" onchange="activeBench=this.value;renderOutputs()"></select>
+          <select id="oBench" onchange="activeBench=this.value;renderAll()"></select>
         </label>
         <label class="note" style="display:flex;gap:6px;align-items:center;">
           <input type="checkbox" id="oAll" onchange="renderOutputs()"> Compare all benchmarks
@@ -106,7 +106,7 @@ footer{padding:12px 24px;font-size:11px;color:var(--muted);}
     <div class="grid2">
       <div class="card">
         <h3>Top 10 DRGs to focus on first (insured cases)</h3>
-        <p class="note" style="margin-bottom:10px">Ranked by money at stake on <b>insured cases</b> at the minor→major boundary. The last column is what <b>just a 1% shift</b> of Minor→Major is worth — small moves, material impact.</p>
+        <p class="note" style="margin-bottom:10px">Ranked by <b>money at stake</b> (the ceiling) on insured cases. The <b>Missed revenue</b> column is the benchmark gap — the realistic figure, and the same headline as the Outputs tab. The last column is what <b>just a 1% shift</b> of Minor→Major is worth.</p>
         <div class="tblwrap" style="max-height:430px"><table id="tblTop10"><thead></thead><tbody></tbody></table></div>
       </div>
       <div class="card">
@@ -140,7 +140,7 @@ footer{padding:12px 24px;font-size:11px;color:var(--muted);}
       <div class="card">
         <h3>Facilities to target — ranked by opportunity</h3>
         <div class="tblwrap" style="max-height:500px"><table id="tbl"><thead></thead><tbody></tbody></table></div>
-        <p class="note" style="margin-top:10px">Opportunity = (facility minor share − <b>selected benchmark</b>, UK by default) × cases × minor→major uplift × <b>insured share</b> of that DRG (claims ÷ DARS activity from the CHI price table — only insured cases generate claimable revenue). If your file has no Complexity column, no opportunity can be computed — the casemix presented by the data is what drives the calculation.</p>
+        <p class="note" style="margin-top:10px">Missed revenue = (facility minor share − <b>selected benchmark</b>, UK by default) × <b>insured cases</b> × tariff uplift (major − minor). Your file should be <b>one row per insured patient</b> — filter out any uninsured cases before upload. If your file has no Complexity column, no missed revenue can be computed — the casemix presented by the data is what drives the calculation.</p>
       </div>
     </div>
   </section>
@@ -255,38 +255,58 @@ document.getElementById("nav").addEventListener("click", e => {
   document.querySelectorAll("main > section").forEach(s => s.classList.toggle("hidden", s.id !== "tab-" + e.target.dataset.tab));
 });
 
+// Canonical insured-only totals — used by every tab so the headline reconciles.
+function totalCeiling(){ return RANK.reduce((s,r)=>s+(r.uplift_sar||0)*(r.claims_activity||0),0); }
+function totalMissed(){ return drgOutput().reduce((s,r)=>s+(r.bench[activeBench].opp||0),0); }
 function renderKpis(){
-  const totOpp = RANK.reduce((s,r)=>s+r.opportunity_sar,0);
-  const totClaims = RANK.reduce((s,r)=>s+(r.claims_activity||0),0);
+  const b = BENCH_BY_ID[activeBench];
+  const ceiling = totalCeiling(), missed = totalMissed();
+  const cases = RANK.reduce((s,r)=>s+(r.claims_activity||0),0);
   const totDars = RANK.reduce((s,r)=>s+(r.dars_activity||0),0);
+  const underRep = drgOutput().filter(r=>(r.bench[activeBench].gap||0)>0.005).length;
   $("kpis").innerHTML = `
-    <div class="kpi"><div class="l">Insured value at minor→major boundary</div><div class="v">${fmtSAR(totOpp)}</div><div class="note">Σ uplift × insured claims activity</div></div>
-    <div class="kpi gold"><div class="l">DRG groups</div><div class="v">${RANK.length}</div><div class="note">306 with evidenced benchmarks</div></div>
-    <div class="kpi red"><div class="l">Claims capture rate</div><div class="v">${fmtPct(totClaims/totDars)}</div><div class="note">insured claims ÷ DARS activity</div></div>
-    <div class="kpi"><div class="l">1% shift across all DRGs</div><div class="v">${fmtSAR(totOpp/100)}</div><div class="note">material from small moves</div></div>`;
+    <div class="kpi gold"><div class="l">Missed revenue vs ${b.short} (insured)</div><div class="v">${fmtSAR(missed)}</div><div class="note">Σ gap × insured cases × tariff uplift · same figure as Outputs</div></div>
+    <div class="kpi"><div class="l">Money at stake — ceiling (insured)</div><div class="v">${fmtSAR(ceiling)}</div><div class="note">Σ uplift × insured cases (if every minor → major)</div></div>
+    <div class="kpi red"><div class="l">DRGs under-reporting majors</div><div class="v">${underRep}</div><div class="note">of ${RANK.length} DRGs vs ${b.short} · capture ${fmtPct(cases/totDars)}</div></div>
+    <div class="kpi"><div class="l">Insured value per 1% shift</div><div class="v">${fmtSAR(ceiling/100)}</div><div class="note">1% of the ceiling, insured cases only</div></div>`;
 }
 
 function renderTop10(){
+  const b = BENCH_BY_ID[activeBench];
+  const idx = {}; drgOutput().forEach(o => idx[o.drg] = o);
   const top = RANK.slice(0,10);
-  $("tblTop10").innerHTML = `<thead><tr><th>#</th><th>DRG</th><th>What it is</th><th>Insured cases</th><th>Uplift /case</th><th>Money at stake</th><th>Gain per 1% shift</th></tr></thead><tbody>` +
-    top.map((r,i)=>`<tr><td><b>${i+1}</b></td><td><b>${r.drg}</b>${r.risk_flag?' <span class="badge b-low">HIGH RISK</span>':''}</td><td>${r.description}</td>
+  $("tblTop10").innerHTML = `<thead><tr><th>#</th><th>DRG</th><th>What it is</th><th>Insured cases</th><th>Uplift /case</th><th>Observed minor %</th><th>${b.short} target %</th><th>Gap pp</th><th>Missed revenue (${b.short})</th><th>Money at stake (ceiling)</th><th>Per 1% shift</th></tr></thead><tbody>` +
+    top.map((r,i)=>{ const o = idx[r.drg], g = o.bench[activeBench];
+      return `<tr><td><b>${i+1}</b></td><td><b>${r.drg}</b>${r.risk_flag?' <span class="badge b-low">HIGH RISK</span>':''}</td><td>${r.description}</td>
       <td class="num">${r.claims_activity ?? "—"}</td><td class="num">${fmtSAR(r.uplift_sar)}</td>
-      <td class="num"><b>${fmtSAR(r.opportunity_sar)}</b></td>
-      <td class="num" style="color:var(--teal);font-weight:700;">${fmtSAR(r.sar_per_1pct)}</td></tr>`).join("") + "</tbody>";
+      <td class="num">${fmtPct(o.observed)} <span class="note">(${o.observedFrom==="peer"?"you":"KSA"})</span></td>
+      <td class="num">${g.target==null?"—":fmtPct(g.target)}</td>
+      <td class="num" style="color:${(g.gap||0)>0?"var(--red)":"var(--green)"};font-weight:700;">${g.gap==null?"—":(g.gap*100).toFixed(1)}</td>
+      <td class="num"><b>${g.opp==null?"—":fmtSAR(g.opp)}</b></td>
+      <td class="num">${fmtSAR(r.opportunity_sar)}</td>
+      <td class="num" style="color:var(--teal);font-weight:700;">${fmtSAR(r.sar_per_1pct)}</td></tr>`; }).join("") + "</tbody>";
 }
 
 function renderRank(){
+  const b = BENCH_BY_ID[activeBench];
+  const idx = {}; drgOutput().forEach(o => idx[o.drg] = o);
   const q = ($("fSearch").value||"").toLowerCase(), m = $("fMdc").value, f = $("fRisk").value;
   let rows = RANK.filter(r => (!m || r.mdc===m) && (!q || (r.drg+" "+r.description).toLowerCase().includes(q)));
   if (f==="risk") rows = rows.filter(r=>r.risk_flag);
   if (f==="lowcap") rows = rows.filter(r => (r.claims_capture ?? 1) < 0.5);
-  $("tblRank").innerHTML = `<thead><tr><th>DRG</th><th>MDC</th><th>Body system</th><th>Description</th><th>Insured cases</th><th>Uplift SAR</th><th>% ↑</th><th>Opportunity</th><th>Per 1% shift</th><th>Capture %</th><th>Risk</th></tr></thead><tbody>` +
-    rows.map(r=>`<tr><td><b>${r.drg}</b></td><td>${r.mdc}</td><td>${r.body_system}</td><td>${r.description}</td>
+  $("tblRank").innerHTML = `<thead><tr><th>DRG</th><th>MDC</th><th>Body system</th><th>Description</th><th>Insured cases</th><th>Uplift SAR</th><th>% ↑</th><th>Observed %</th><th>${b.short} target %</th><th>Gap pp</th><th>Missed revenue (${b.short})</th><th>Money at stake (ceiling)</th><th>Per 1% shift</th><th>Capture %</th><th>Risk</th></tr></thead><tbody>` +
+    rows.map(r=>{ const o = idx[r.drg], g = o.bench[activeBench];
+      return `<tr><td><b>${r.drg}</b></td><td>${r.mdc}</td><td>${r.body_system}</td><td>${r.description}</td>
       <td class="num">${r.claims_activity ?? "—"}</td><td class="num">${fmtSAR(r.uplift_sar)}</td>
-      <td class="num">${fmtPct(r.pct_increase)}</td><td class="num"><b>${fmtSAR(r.opportunity_sar)}</b></td>
+      <td class="num">${fmtPct(r.pct_increase)}</td>
+      <td class="num">${fmtPct(o.observed)} <span class="note">(${o.observedFrom==="peer"?"you":"KSA"})</span></td>
+      <td class="num">${g.target==null?"—":fmtPct(g.target)}</td>
+      <td class="num" style="color:${(g.gap||0)>0?"var(--red)":"var(--green)"};font-weight:700;">${g.gap==null?"—":(g.gap*100).toFixed(1)}</td>
+      <td class="num"><b>${g.opp==null?"—":fmtSAR(g.opp)}</b></td>
+      <td class="num">${fmtSAR(r.opportunity_sar)}</td>
       <td class="num" style="color:var(--teal);font-weight:700;">${fmtSAR(r.sar_per_1pct)}</td>
       <td class="num">${fmtPct(r.claims_capture)}</td>
-      <td>${r.risk_flag?'<span class="badge b-low">HIGH</span>':'<span class="badge b-high">std</span>'}</td></tr>`).join("") + "</tbody>";
+      <td>${r.risk_flag?'<span class="badge b-low">HIGH</span>':'<span class="badge b-high">std</span>'}</td></tr>`; }).join("") + "</tbody>";
 }
 // ---- benchmarks: chapter tabs with real per-DRG data
 const CHAPTER_NAMES = {A:"Pre-MDC — Intervention", B:"Nervous system", C:"Eye", D:"Ear, nose & throat",
@@ -411,7 +431,7 @@ function drgOutput(){
 let curChapter = null;
 function renderBenchSwitcher(){
   $("benchSwitcher").innerHTML = BENCHMARKS.map(x =>
-    `<button class="act" style="${x.id===activeBench?"":"background:var(--navy);"}" onclick="activeBench='${x.id}';renderBench();renderOutputs();">${x.label}</button>`).join("") +
+    `<button class="act" style="${x.id===activeBench?"":"background:var(--navy);"}" onclick="activeBench='${x.id}';renderAll();">${x.label}</button>`).join("") +
     `<span class="note" style="margin-left:8px;align-self:center;">Highlighted benchmark: <b>${BENCH_BY_ID[activeBench].label}</b> · ${BENCH_BY_ID[activeBench].evidence}</span>`;
 }
 function renderBench(){
@@ -472,13 +492,13 @@ function outputRows(){
 function renderOutputs(){
   populateOutputControls();
   const all = $("oAll").checked, rows = outputRows(), b = BENCH_BY_ID[activeBench];
-  const totOpp = rows.reduce((s,r)=>s+(r.bench[activeBench].opp||0),0);
+  const full = drgOutput();
+  const totOpp = rows.reduce((s,r)=>s+(r.bench[activeBench].opp||0),0);       // in-view (filtered)
+  const fullMissed = full.reduce((s,r)=>s+(r.bench[activeBench].opp||0),0);   // ALL DRGs — matches other tabs
+  const fullCeiling = full.reduce((s,r)=>s+r.ceiling,0);
   const totCases = rows.reduce((s,r)=>s+r.cases,0);
-  const withGap = rows.filter(r=>(r.bench[activeBench].gap||0)>0).length;
-  const withGapAll = drgOutput().filter(r=>(r.bench[activeBench].gap||0)>0).length;
-  const avgGap = rows.length ? rows.reduce((s,r)=>s+(r.bench[activeBench].gap||0),0)/rows.length : 0;
   const peerDRGs = Object.keys(PEER_SHARE).length;
-  const underRep = rows.filter(r=>(r.bench[activeBench].gap||0)>0.005).length;
+  const underRep = full.filter(r=>(r.bench[activeBench].gap||0)>0.005).length;
   const casesAffected = rows.filter(r=>(r.bench[activeBench].gap||0)>0).reduce((s,r)=>s+r.cases,0);
   const dirOf = o => (o.gap||0) > 0.005
     ? '<span class="badge b-low">majors under-reported</span>'
@@ -487,13 +507,13 @@ function renderOutputs(){
   const peerWarn = peerDRGs ? "" : ` <b>No patient file loaded</b> — observed shares fall back to the KSA CHI baseline; upload a file in Facility Targeting for your own observed split.`;
   $("oHeadline").innerHTML = `
     <div class="note" style="text-transform:uppercase;letter-spacing:.5px;font-weight:700;">Estimated missed revenue vs ${b.label} — insured inpatient cases</div>
-    <div style="font-size:36px;font-weight:800;color:var(--navy);line-height:1.1;margin:4px 0;">${fmtSAR(totOpp)}</div>
-    <div class="note">Additional income if the Minor/Major split of IP encounters matched <b>${b.label}</b> (${b.evidence}) and was billed at the CHI AR-DRG v9.0 tariff, <b>insured cases only</b>. ${underRep} DRG${underRep===1?"":"s"} currently look <b>major-under-reported</b>.${peerWarn}</div>`;
+    <div style="font-size:36px;font-weight:800;color:var(--navy);line-height:1.1;margin:4px 0;">${fmtSAR(fullMissed)}</div>
+    <div class="note">Additional insured income if the Minor/Major split of IP encounters matched <b>${b.label}</b> (${b.evidence}) and was billed at the CHI AR-DRG v9.0 tariff. ${underRep} DRG${underRep===1?"":"s"} currently look <b>major-under-reported</b>. Money at stake (ceiling, every minor → major) = <b>${fmtSAR(fullCeiling)}</b>.${peerWarn}</div>`;
   $("oKpis").innerHTML = `
-    <div class="kpi gold"><div class="l">Missed revenue — ${b.short} (insured)</div><div class="v">${fmtSAR(totOpp)}</div><div class="note">Σ gap × insured cases × tariff uplift</div></div>
+    <div class="kpi gold"><div class="l">Missed revenue — ${b.short} (insured)</div><div class="v">${fmtSAR(fullMissed)}</div><div class="note">Σ gap × insured cases × tariff uplift · all ${full.length} DRGs</div></div>
+    <div class="kpi"><div class="l">Money at stake — ceiling (insured)</div><div class="v">${fmtSAR(fullCeiling)}</div><div class="note">Σ uplift × insured cases (every minor → major)</div></div>
     <div class="kpi red"><div class="l">DRGs under-reporting majors</div><div class="v">${underRep}</div><div class="note">observed minor share above ${b.short} target</div></div>
-    <div class="kpi"><div class="l">Insured cases in scope</div><div class="v">${casesAffected.toLocaleString()}</div><div class="note">of ${totCases.toLocaleString()} in view${withGapAll!==withGap?" · "+withGapAll+" overall":""}</div></div>
-    <div class="kpi"><div class="l">Avg gap vs ${b.short}</div><div class="v">${(avgGap*100).toFixed(1)} pp</div><div class="note">observed − benchmark</div></div>`;
+    <div class="kpi"><div class="l">In view</div><div class="v">${rows.length} DRGs</div><div class="note">${fmtSAR(totOpp)} missed · ${casesAffected.toLocaleString()} insured cases with a gap (of ${totCases.toLocaleString()})</div></div>`;
   let head;
   if (all){
     head = `<th>DRG</th><th>MDC</th><th>Description</th><th>Insured cases</th><th>Money at stake</th><th>Observed %</th><th>Direction</th>` +
@@ -715,21 +735,19 @@ function analyze(){
   const agg = {};
   recs.forEach(r => { if (!r.tier) return; const a = agg[r.drg] || (agg[r.drg] = {n:0, minor:0}); a.n++; if (r.tier === "Minor") a.minor++; });
   Object.entries(agg).forEach(([drg,a]) => { if (a.n) PEER_SHARE[drg] = a.minor / a.n; });
-  // Opportunity target = the SELECTED benchmark (UK by default). Opportunity =
-  // (facility minor share − benchmark minor share) × cases × uplift × INSURED
-  // SHARE of that DRG (claims ÷ DARS from the price table).
+  // Missed revenue target = the SELECTED benchmark (UK by default). The upload
+  // is documented as one row per INSURED patient, so:
+  //   missed revenue = (minor share − benchmark minor share) × insured cases × uplift
+  // No extra insured-share weighting is applied (that would double-count).
   const target = {};
   cells.forEach(c => target[c.drg] = benchShare(activeBench, c.drg));
-  const iShare = {};
-  cells.forEach(c => { if (iShare[c.drg] === undefined) {
-    const r = priceIdx[c.drg]; iShare[c.drg] = r ? (insuredPct(r) ?? 0) : 0; } });
 
   const facs = {};
   recs.forEach(r => { const f = facs[r.fac] || (facs[r.fac] = {n:0, matchedN:0, spend:0, opp:0});
     f.n++; if (r.matched) { f.matchedN++; if (r.tier) f.spend += r.tier === "Major" ? r.p.major_sar : r.p.minor_sar; } });
   cells.forEach(c => {
     const f = facs[c.fac], fm = c.minor / c.n, t = target[c.drg];
-    if (c.matched && hasTier && fm > t) f.opp += (fm - t) * c.n * c.uplift * iShare[c.drg];
+    if (c.matched && hasTier && fm > t) f.opp += (fm - t) * c.n * c.uplift;
   });
   const natMean = (hasTier && matched) ? recs.filter(r=>r.matched).reduce((s,r)=> s + (r.tier==="Major" ? r.p.major_sar : r.p.minor_sar), 0) / matched : null;
 
@@ -745,9 +763,9 @@ function analyze(){
   RESULTS = {rows};
   $("fKpis").innerHTML = `
     <div class="kpi"><div class="l">Episodes analysed</div><div class="v">${recs.length.toLocaleString()}</div><div class="note">${rows.length} facilities · ${matched.toLocaleString()} price-matched</div></div>
-    <div class="kpi gold"><div class="l">Benchmark target</div><div class="v">${hasTier ? BENCH_BY_ID[activeBench].short + " ✓" : "tier column missing"}</div><div class="note">${hasTier ? BENCH_BY_ID[activeBench].label + " (" + BENCH_BY_ID[activeBench].evidence + ") × insured share" : "upload a Minor/Major column to compute opportunity"}</div></div>
+    <div class="kpi gold"><div class="l">Benchmark target</div><div class="v">${hasTier ? BENCH_BY_ID[activeBench].short + " ✓" : "tier column missing"}</div><div class="note">${hasTier ? BENCH_BY_ID[activeBench].label + " (" + BENCH_BY_ID[activeBench].evidence + ") × insured cases" : "upload a Minor/Major column to compute opportunity"}</div></div>
     <div class="kpi red"><div class="l">Facilities below target CMI</div><div class="v">${rows.filter(r=>r.cmi!==null&&r.cmi<1).length}</div><div class="note">CMI under 1.00</div></div>
-    <div class="kpi"><div class="l">Total opportunity</div><div class="v">${fmtSAR(rows.reduce((s,r)=>s+r.opportunity,0))}</div><div class="note">closing minor→major gaps</div></div>`;
+    <div class="kpi gold"><div class="l">Missed revenue (insured, your file)</div><div class="v">${fmtSAR(rows.reduce((s,r)=>s+r.opportunity,0))}</div><div class="note">Σ gap × insured cases × tariff uplift (${BENCH_BY_ID[activeBench].short})</div></div>`;
   $("tbl").innerHTML = `<thead><tr><th>Rank</th><th>Facility</th><th>Episodes</th><th>Price-matched</th><th>CMI (1.00=target)</th><th>Status</th><th>Opportunity</th><th>Top DRG gaps</th></tr></thead><tbody>` +
     rows.map((r,i)=>`<tr><td><b>${i+1}</b></td><td><b>${r.facility}</b></td>
       <td class="num">${r.discharges.toLocaleString()}</td><td class="num">${r.matched.toLocaleString()}</td>
@@ -756,7 +774,7 @@ function analyze(){
       <td class="num"><b>${fmtSAR(r.opportunity)}</b></td>
       <td style="white-space:normal;max-width:440px;">${r.gaps.map(g=>`<span class="chip">${g.drg}: ${fmtPct(g.share)} vs ${fmtPct(g.target)} → ${fmtSAR(g.gain)}</span>`).join(" ") || "—"}</td></tr>`).join("") + "</tbody>";
   $("resCard").classList.remove("hidden");
-  renderOutputs();
+  renderAll();
   toast("Analysis complete — " + rows.length + " facilities");
 }
 // ---- simulator
@@ -770,7 +788,7 @@ function runSim(){
   const det = sel.map(r => { const g = (r.claims_activity||0) * shift * (r.uplift_sar||0); total += g;
     return {drg:r.drg, desc:r.description, gain:g}; }).sort((a,b)=>b.gain-a.gain).slice(0,15);
   $("simTotal").textContent = "+" + fmtSAR(total);
-  $("simScope").textContent = `Estimated revenue delta from reclassifying ${$("sShift").value}% of Minor episodes to Major (insured cases only) across ${scope==="all"?"all":scope==="top20"?"the top 20":"the high-risk"} DRGs.`;
+  $("simScope").textContent = `Insured revenue delta from reclassifying ${$("sShift").value}% of Minor episodes to Major across ${scope==="all"?"all":scope==="top20"?"the top 20":"the high-risk"} DRGs — ${$("sShift").value}% of the money-at-stake ceiling (SAR ${Math.round(totalCeiling()).toLocaleString("en")}), i.e. the maximum if every minor case became major, NOT the ${BENCH_BY_ID[activeBench].short}-benchmark missed revenue on Outputs.`;
   $("tblSim").innerHTML = `<thead><tr><th>DRG</th><th>Description</th><th>Gain (SAR)</th></tr></thead><tbody>` +
     det.map(d=>`<tr><td><b>${d.drg}</b></td><td>${d.desc}</td><td class="num">${fmtSAR(d.gain)}</td></tr>`).join("") + "</tbody>";
 }
@@ -791,7 +809,10 @@ function downloadResults(){
 }
 
 // init
-renderKpis(); renderTop10(); renderRank(); renderBench(); renderOutputs(); runSim();
+// One refresh entry point so every tab shows the same benchmark and the same
+// insured-only totals.
+function renderAll(){ renderKpis(); renderTop10(); renderRank(); renderBench(); renderOutputs(); runSim(); }
+renderAll();
 
 
 

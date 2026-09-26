@@ -15,6 +15,8 @@ no internet required (SheetJS is embedded for `.xlsx` uploads).
    uplift, DARS activity, insured claims activity).
 2. Lets you upload a patient-level extract (CSV / tab-delimited / XLSX) with a
    facility column, a DRG column and (optionally) a Minor/Major complexity column.
+   The extract should be **one row per insured patient** — filter out uninsured
+   cases before upload, because every figure in the tool is an insured-only figure.
 3. Aggregates the upload to **per-DRG observed minor shares** (the "current state").
 4. Compares those against **five benchmarks** and reports the **missed revenue** —
    the additional insured income if IP encounters were categorised as in the
