@@ -62,6 +62,7 @@ footer{padding:12px 24px;font-size:11px;color:var(--muted);}
 </header>
 <nav id="nav">
   <button class="active" data-tab="outputs">📤 Outputs — DRG opportunities</button>
+  <button data-tab="au">🇦🇺 AU Outputs — like-for-like</button>
   <button data-tab="top10">🎯 Biggest Bank for Buck</button>
   <button data-tab="facility">🏥 Facility Targeting</button>
   <button data-tab="ranking">Full Ranking</button>
@@ -101,7 +102,45 @@ footer{padding:12px 24px;font-size:11px;color:var(--muted);}
     </div>
   </section>
 
-  <section id="tab-top10" class="hidden">
+  <section id="tab-au" class="hidden">
+    <div class="card" style="border-left:5px solid var(--teal);">
+      <h3 style="margin-top:0">🇦🇺 Australia AIHW — the like-for-like benchmark <span class="note" style="font-weight:400">(why this matters)</span></h3>
+      <p class="note" style="margin-top:6px;line-height:1.6">
+        Saudi Arabia adopted <b>ICD-10-AM + AR-DRG v9.0</b> (Saudi Health Council), and CHI's own
+        correlation analysis scored the KSA price list at <b>0.96 against Australian AR-DRG v9.0
+        2019/20</b> (vs 0.92 for UAE IR-DRG 3.01 and a different grouping for UK HRG4+).
+        Same grouper and same MINC/MAJC complexity logic ⇒ the Australian complexity splits are
+        <b>genuinely like-for-like</b>, whereas the UK per-DRG figures are a calibration across a
+        different grouper. Australia is also the only <b>per-DRG evidenced</b> source in this tool
+        (<b id="auPdCountRef"></b> of 309 DRGs).</p>
+    </div>
+    <div class="card" id="auHeadline" style="border-left:5px solid var(--teal);"></div>
+    <div class="kpis" id="auKpis"></div>
+    <div class="card">
+      <h3>AU-benchmarked DRG outputs <span class="note" id="auSub" style="font-weight:400"></span></h3>
+      <div class="filters">
+        <label class="note" style="display:flex;gap:6px;align-items:center;">
+          <input type="checkbox" id="auAll" onchange="renderAu()"> Compare all benchmarks
+        </label>
+        <input id="auSearch" placeholder="Search DRG / description…" oninput="renderAu()">
+        <select id="auMdc" onchange="renderAu()"><option value="">All MDCs</option></select>
+        <select id="auOnly" onchange="renderAu()">
+          <option value="">All DRGs</option>
+          <option value="gap">Only DRGs with a gap vs AU</option>
+          <option value="top20">Top 20 by opportunity</option>
+        </select>
+        <button class="act" onclick="exportOutputs('csv', true, 'au')">⬇ CSV (all benchmarks)</button>
+        <button class="act" style="background:var(--navy);" onclick="exportOutputs('xlsx', true, 'au')">⬇ Excel (all benchmarks)</button>
+        <button class="act" style="background:var(--teal);" onclick="exportOutputs('csv', false, 'au')">⬇ AU benchmark only (CSV)</button>
+      </div>
+      <div class="tblwrap" style="max-height:620px"><table id="tblAu"><thead></thead><tbody></tbody></table></div>
+      <p class="note" id="auFormula" style="margin-top:10px"></p>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>Top opportunities — Australia AIHW</h3><div id="auBars"></div></div>
+      <div class="card"><h3>Benchmark reference &amp; evidence</h3><div id="auBenchRef"></div></div>
+    </div>
+  </section>
     <div class="kpis" id="kpis"></div>
     <div class="grid2">
       <div class="card">
@@ -516,47 +555,65 @@ function renderBench(){
 }
 
 // ---- outputs tab: DRG-level opportunity under every benchmark --------------
-function populateOutputControls(){
-  const sel = $("oBench");
-  if (!sel.options.length)
-    sel.innerHTML = BENCHMARKS.map(b => `<option value="${b.id}">${b.label} — ${b.evidence}</option>`).join("");
-  sel.value = activeBench;
-  const mdc = $("oMdc");
-  if (mdc.options.length <= 1){
+// Element ids for each Outputs-style view. "main" is the active-benchmark tab
+// (UK by default); "au" is the fixed-Australia tab. Both share one renderer, so
+// the two tabs can never drift apart.
+const OUT_IDS = {
+  main: {sub:"oSub", headline:"oHeadline", kpis:"oKpis", all:"oAll", search:"oSearch", mdc:"oMdc", only:"oOnly", table:"tblOutputs", formula:"oFormula", bars:"oBars", ref:"oBenchRef"},
+  au:   {sub:"auSub", headline:"auHeadline", kpis:"auKpis", all:"auAll", search:"auSearch", mdc:"auMdc", only:"auOnly", table:"tblAu", formula:"auFormula", bars:"auBars", ref:"auBenchRef"}
+};
+function populateMdcSelect(id){
+  const mdc = $(id);
+  if (mdc && mdc.options.length <= 1){
     const codes = [...new Set(RANK.map(r=>r.mdc))].sort();
     mdc.innerHTML = '<option value="">All MDCs</option>' + codes.map(c=>`<option value="${c}">${c} — ${CHAPTER_NAMES[c]||""}</option>`).join("");
   }
 }
-function outputRows(){
-  const search = ($("oSearch").value||"").toLowerCase(), mdc = $("oMdc").value, only = $("oOnly").value;
+function populateOutputControls(){
+  const sel = $("oBench");
+  if (sel && !sel.options.length)
+    sel.innerHTML = BENCHMARKS.map(b => `<option value="${b.id}">${b.label} — ${b.evidence}</option>`).join("");
+  if (sel) sel.value = activeBench;
+  populateMdcSelect("oMdc"); populateMdcSelect("auMdc");
+  const pd = $("auPdCountRef");
+  if (pd) pd.textContent = Object.keys(BENCH.per_drg||{}).length;
+}
+function outputRows(idsKey, benchId){
+  const ids = OUT_IDS[idsKey] || OUT_IDS.main, bench = benchId || activeBench;
+  const search = ($(ids.search).value||"").toLowerCase(), mdc = $(ids.mdc).value, only = $(ids.only).value;
   let rows = drgOutput().filter(r => (!mdc || r.mdc===mdc) && (!search || (r.drg+" "+r.desc+" "+(r.body||"")).toLowerCase().includes(search)));
-  if (only === "gap") rows = rows.filter(r => (r.bench[activeBench].gap||0) > 0);
-  rows.sort((a,b) => (b.bench[activeBench].opp||0) - (a.bench[activeBench].opp||0));
+  if (only === "gap") rows = rows.filter(r => (r.bench[bench].gap||0) > 0);
+  rows.sort((a,b) => (b.bench[bench].opp||0) - (a.bench[bench].opp||0));
   if (only === "top20") rows = rows.slice(0,20);
   return rows;
 }
 
-function renderOutputs(){
-  populateOutputControls();
-  const all = $("oAll").checked, rows = outputRows(), b = BENCH_BY_ID[activeBench];
+function renderOutputInto(idsKey, benchId){
+  const ids = OUT_IDS[idsKey] || OUT_IDS.main, b = BENCH_BY_ID[benchId];
+  const all = $(ids.all).checked, rows = outputRows(idsKey, benchId);
   const full = drgOutput();
-  const totOpp = rows.reduce((s,r)=>s+(r.bench[activeBench].opp||0),0);       // in-view (filtered)
-  const fullMissed = full.reduce((s,r)=>s+(r.bench[activeBench].opp||0),0);   // ALL DRGs — matches other tabs
+  const totOpp = rows.reduce((s,r)=>s+(r.bench[benchId].opp||0),0);       // in-view (filtered)
+  const fullMissed = full.reduce((s,r)=>s+(r.bench[benchId].opp||0),0);   // ALL DRGs — matches other tabs
   const fullCeiling = full.reduce((s,r)=>s+r.ceiling,0);
   const totCases = rows.reduce((s,r)=>s+r.cases,0);
   const peerDRGs = Object.keys(PEER_SHARE).length;
-  const underRep = full.filter(r=>(r.bench[activeBench].gap||0)>0.005).length;
-  const casesAffected = rows.filter(r=>(r.bench[activeBench].gap||0)>0).reduce((s,r)=>s+r.cases,0);
+  const underRep = full.filter(r=>(r.bench[benchId].gap||0)>0.005).length;
+  const casesAffected = rows.filter(r=>(r.bench[benchId].gap||0)>0).reduce((s,r)=>s+r.cases,0);
+  const caveat = (benchId === "uk")
+    ? ` <b>UK per-DRG is a calibration</b> — a UK chapter anchor scaled by the Australian within-chapter pattern, not NHS per-DRG data. See the “Real UK casemix” panel on DRG Chapters &amp; Benchmarks.`
+    : (benchId === "au")
+      ? ` <b>Australia is the like-for-like benchmark</b> — the same AR-DRG v9.0 grouper and MINC/MAJC complexity logic as the KSA tariff, and the only per-DRG <i>evidenced</i> source in this tool.`
+      : "";
   const dirOf = o => (o.gap||0) > 0.005
     ? '<span class="badge b-low">majors under-reported</span>'
     : '<span class="badge b-high">at benchmark</span>';
-  $("oSub").textContent = `— ${b.label} · ${b.evidence} · observed minor share from ${peerDRGs?peerDRGs+" uploaded DRGs (peer)":"KSA baseline (no file uploaded)"}`;
+  $(ids.sub).textContent = `— ${b.label} · ${b.evidence} · observed minor share from ${peerDRGs?peerDRGs+" uploaded DRGs (peer)":"KSA baseline (no file uploaded)"}`;
   const peerWarn = peerDRGs ? "" : ` <b>No patient file loaded</b> — observed shares fall back to the KSA CHI baseline; upload a file in Facility Targeting for your own observed split.`;
-  $("oHeadline").innerHTML = `
+  $(ids.headline).innerHTML = `
     <div class="note" style="text-transform:uppercase;letter-spacing:.5px;font-weight:700;">Estimated missed revenue vs ${b.label} — insured inpatient cases</div>
     <div style="font-size:36px;font-weight:800;color:var(--navy);line-height:1.1;margin:4px 0;">${fmtSAR(fullMissed)}</div>
-    <div class="note">Additional insured income if the Minor/Major split of IP encounters matched <b>${b.label}</b> (${b.evidence}) and was billed at the CHI AR-DRG v9.0 tariff. ${underRep} DRG${underRep===1?"":"s"} currently look <b>major-under-reported</b>. Money at stake (ceiling, every minor → major) = <b>${fmtSAR(fullCeiling)}</b>.${peerWarn}</div>`;
-  $("oKpis").innerHTML = `
+    <div class="note">Additional insured income if the Minor/Major split of IP encounters matched <b>${b.label}</b> (${b.evidence}) and was billed at the CHI AR-DRG v9.0 tariff. ${underRep} DRG${underRep===1?"":"s"} currently look <b>major-under-reported</b>. Money at stake (ceiling, every minor → major) = <b>${fmtSAR(fullCeiling)}</b>.${caveat}${peerWarn}</div>`;
+  $(ids.kpis).innerHTML = `
     <div class="kpi gold"><div class="l">Missed revenue — ${b.short} (insured)</div><div class="v">${fmtSAR(fullMissed)}</div><div class="note">Σ gap × insured cases × tariff uplift · all ${full.length} DRGs</div></div>
     <div class="kpi"><div class="l">Money at stake — ceiling (insured)</div><div class="v">${fmtSAR(fullCeiling)}</div><div class="note">Σ uplift × insured cases (every minor → major)</div></div>
     <div class="kpi red"><div class="l">DRGs under-reporting majors</div><div class="v">${underRep}</div><div class="note">observed minor share above ${b.short} target</div></div>
@@ -573,11 +630,11 @@ function renderOutputs(){
     if (all){
       const cells = BENCHMARKS.map(x => { const o = r.bench[x.id];
         const t = o.target==null?"—":fmtPct(o.target), v = o.opp==null?"—":fmtSAR(o.opp);
-        const hl = x.id===activeBench ? ' style="font-weight:700;"' : '';
+        const hl = x.id===benchId ? ' style="font-weight:700;"' : '';
         return `<td class="num"${hl}>${t}</td><td class="num"${hl}>${v}</td>`; }).join("");
-      return `<tr>${base}<td class="num">${fmtSAR(r.ceiling)}</td><td class="num">${fmtPct(r.observed)} <span class="note">(${r.observedFrom==="peer"?"you":"KSA"})</span></td><td>${dirOf(r.bench[activeBench])}</td>${cells}<td>${r.best?BENCH_BY_ID[r.best].short:"—"}</td></tr>`;
+      return `<tr>${base}<td class="num">${fmtSAR(r.ceiling)}</td><td class="num">${fmtPct(r.observed)} <span class="note">(${r.observedFrom==="peer"?"you":"KSA"})</span></td><td>${dirOf(r.bench[benchId])}</td>${cells}<td>${r.best?BENCH_BY_ID[r.best].short:"—"}</td></tr>`;
     }
-    const o = r.bench[activeBench], gap = o.gap==null?"—":(o.gap*100).toFixed(1);
+    const o = r.bench[benchId], gap = o.gap==null?"—":(o.gap*100).toFixed(1);
     const opp = o.opp==null?"—":fmtSAR(o.opp), per1 = o.opp==null?"—":fmtSAR(o.opp/100);
     return `<tr>${base}<td class="num">${fmtSAR(r.minor)}</td><td class="num">${fmtSAR(r.major)}</td><td class="num">${fmtSAR(r.uplift)}</td>
       <td class="num">${fmtPct(r.observed)} <span class="note">(${r.observedFrom==="peer"?"you":"KSA"})</span></td>
@@ -587,33 +644,39 @@ function renderOutputs(){
       <td class="num"><b>${opp}</b></td><td class="num" style="color:var(--teal);font-weight:700;">${per1}</td>
       <td><span class="badge ${b.granularity==="per-drg"?"b-high":""}" style="${b.granularity==="per-drg"?"":"background:#eee;color:#666"}">${b.granularity}</span></td></tr>`;
   }).join("");
-  $("tblOutputs").innerHTML = `<thead><tr>${head}</tr></thead><tbody>${body||'<tr><td colspan="24" class="note">No DRGs match.</td></tr>'}</tbody>`;
-  $("oFormula").innerHTML = `Missed revenue = <b>max(0, observed minor share − ${b.short} benchmark minor share) × insured cases × DRG tariff uplift (major − minor)</b> — the additional insured income if each IP encounter were categorised Minor/Major as in ${b.short} and billed at the CHI AR-DRG v9.0 tariff. ` +
+  $(ids.table).innerHTML = `<thead><tr>${head}</tr></thead><tbody>${body||'<tr><td colspan="24" class="note">No DRGs match.</td></tr>'}</tbody>`;
+  $(ids.formula).innerHTML = `Missed revenue = <b>max(0, observed minor share − ${b.short} benchmark minor share) × insured cases × DRG tariff uplift (major − minor)</b> — the additional insured income if each IP encounter were categorised Minor/Major as in ${b.short} and billed at the CHI AR-DRG v9.0 tariff. ` +
     `Money at stake = uplift × insured cases (the ceiling if every minor case became major). ` +
     `Observed minor share = ${peerDRGs?"peer median aggregated from your uploaded file":"KSA CHI baseline (upload a patient file in Facility Targeting to switch to your own observed shares)"}. ` +
     `<b>${b.label}</b> is ${b.evidence}. Source: ${b.source}.`;
-  renderOutputBars(rows); renderBenchRef();
+  renderOutputBars(idsKey, benchId, rows); renderBenchRef(idsKey, benchId);
 }
+function renderOutputs(){ populateOutputControls(); renderOutputInto("main", activeBench); }
+function renderAu(){ populateOutputControls(); renderOutputInto("au", "au"); }
 
-function renderOutputBars(rows){
-  const top = rows.slice(0,12).filter(r=>(r.bench[activeBench].opp||0)>0);
-  const max = Math.max(1, ...top.map(r=>r.bench[activeBench].opp));
-  $("oBars").innerHTML = top.length ? top.map(r =>
+function renderOutputBars(idsKey, benchId, rows){
+  const ids = OUT_IDS[idsKey] || OUT_IDS.main;
+  const top = rows.slice(0,12).filter(r=>(r.bench[benchId].opp||0)>0);
+  const max = Math.max(1, ...top.map(r=>r.bench[benchId].opp));
+  $(ids.bars).innerHTML = top.length ? top.map(r =>
     `<div class="benchrow"><div class="lab" style="width:90px;font-size:12px;">${r.drg}</div>
-     <div style="flex:1;background:#eef1f6;border-radius:4px;"><div class="bar" style="width:${(r.bench[activeBench].opp/max*100).toFixed(1)}%;background:${BENCH_BY_ID[activeBench].colour};"></div></div>
-     <div class="val" style="width:110px;">${fmtSAR(r.bench[activeBench].opp)}</div></div>`).join("")
+     <div style="flex:1;background:#eef1f6;border-radius:4px;"><div class="bar" style="width:${(r.bench[benchId].opp/max*100).toFixed(1)}%;background:${BENCH_BY_ID[benchId].colour};"></div></div>
+     <div class="val" style="width:110px;">${fmtSAR(r.bench[benchId].opp)}</div></div>`).join("")
     : '<p class="note">No positive opportunity for this benchmark/filter. Upload a patient file in Facility Targeting to compute observed shares.</p>';
 }
-function renderBenchRef(){
-  $("oBenchRef").innerHTML = BENCHMARKS.map(b =>
+function renderBenchRef(idsKey, benchId){
+  const ids = OUT_IDS[idsKey] || OUT_IDS.main;
+  $(ids.ref).innerHTML = BENCHMARKS.map(b =>
     `<div class="note" style="margin:6px 0;padding:8px 10px;background:#f8fafc;border-left:3px solid ${b.colour};border-radius:4px;">
-      <b>${b.label}</b> <span class="badge ${b.id===activeBench?"b-high":""}" style="${b.id===activeBench?"":"background:#eee;color:#666"}">${b.id===activeBench?"IN USE":"available"}</span>
+      <b>${b.label}</b> <span class="badge ${b.id===benchId?"b-high":""}" style="${b.id===benchId?"":"background:#eee;color:#666"}">${b.id===benchId?"IN USE":"available"}</span>
       <span class="badge" style="background:#eef1f6;color:#333;">${b.granularity}</span><br>
       ${b.status} · ${b.evidence}<br><span style="opacity:.75">${b.source}${b.url?" — "+b.url:""}</span></div>`).join("");
 }
 
-function exportOutputs(fmt, all){
-  const rows = outputRows(), b = BENCH_BY_ID[activeBench];
+function exportOutputs(fmt, all, idsKey){
+  idsKey = idsKey || "main";
+  const benchId = (idsKey === "au") ? "au" : activeBench;
+  const rows = outputRows(idsKey, benchId), b = BENCH_BY_ID[benchId];
   const cols = all ? BENCHMARKS : [b];
   const header = ["DRG","MDC","BodySystem","Description","InsuredCases","MoneyAtStakeSAR","ObservedMinorShare","ObservedFrom"];
   cols.forEach(x => { header.push(x.short+"_TargetMinorShare"); header.push(x.short+"_GapPP"); header.push(x.short+"_OpportunitySAR"); });
@@ -625,29 +688,29 @@ function exportOutputs(fmt, all){
       line.push(o.target==null?"":+(o.target*100).toFixed(1));
       line.push(o.gap==null?"":+(o.gap*100).toFixed(1));
       line.push(o.opp==null?"":Math.round(o.opp)); });
-    line.push((r.bench[activeBench].gap||0) > 0.005 ? "majors under-reported" : "at benchmark");
+    line.push((r.bench[benchId].gap||0) > 0.005 ? "majors under-reported" : "at benchmark");
     line.push(r.best ? BENCH_BY_ID[r.best].short : "");
     aoa.push(line);
   });
   const stamp = new Date().toISOString().slice(0,10);
   const meta = [
     ["DRG Revenue Focus Tool — DRG opportunity outputs"],["Generated", stamp],
-    ["Main benchmark", "UK (" + BENCH_BY_ID.uk.evidence + ")"],
+    ["Benchmark view", b.label + " (" + b.evidence + ")"],
     ["Benchmarks included", cols.map(x=>x.label+" ["+x.evidence+"]").join(" | ")],
     ["Formula", "max(0, observed minor share - benchmark minor share) x insured cases x uplift"],
     ["Observed share source", Object.keys(PEER_SHARE).length ? "peer median from uploaded file ("+Object.keys(PEER_SHARE).length+" DRGs)" : "KSA CHI baseline (no file uploaded)"],
-    ["UK per-DRG method", "UK chapter anchors (NHS National Cost Collection 2023/24, HRG4+) calibrated by the evidenced within-chapter per-DRG pattern from the AIHW AR-DRG v9.0 cube 2019-20; activity-weighted, chapter totals approximately preserved."],
+    ["UK column method", "UK per-DRG is a CALIBRATION, not NHS per-DRG data: UK chapter anchor x evidenced within-chapter per-DRG pattern from the AIHW AR-DRG v9.0 cube 2019-20. Real NHS activity/complexity is reported separately (NHS NCC FY2021/22)."],
     ["AU / UAE / KSA", "AU is evidenced per-DRG (AIHW, 306/309). UAE and KSA remain chapter-level."],[]];
   if (fmt === "xlsx"){
     const ws = XLSX.utils.aoa_to_sheet(meta.concat(aoa));
     ws["!cols"] = header.map((h,i)=>({wch:i<4?26:16}));
     const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "DRG outputs");
-    XLSX.writeFile(wb, `drg_opportunity_outputs_${stamp}.xlsx`);
+    XLSX.writeFile(wb, `drg_opportunity_outputs_${benchId}${all?"_all":""}_${stamp}.xlsx`);
   } else {
     const csv = meta.concat(aoa).map(row => row.map(c => typeof c === "string" ? '"'+c.replace(/"/g,'""')+'"' : c).join(",")).join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
-    a.download = all ? `drg_opportunity_outputs_all_${stamp}.csv` : `drg_opportunity_outputs_uk_${stamp}.csv`;
+    a.download = all ? `drg_opportunity_outputs_all_${stamp}.csv` : `drg_opportunity_outputs_${benchId}_${stamp}.csv`;
     a.click();
   }
   toast("Exported " + rows.length + " DRGs" + (all?" (all benchmarks)":" ("+b.short+")"));
@@ -888,7 +951,7 @@ function renderUkCasemix(){
         <td class="note">${r.e.ch.join(", ")}</td></tr>`; }).join("") + `</tbody></table></div>
     <p class="note" style="margin-top:10px"><b>Provenance.</b> ${UK_CASEMIX.source}. These are real NHS Finished Consultant Episodes with a real Low/Medium/High split — ${pct(bs.explicit)} of activity banded from NHS's own complexity wording, ${pct(bs.cc)} from the CC-score ladder, ${pct(bs.cost)} from unit-cost tertile. <b>Limitation:</b> ${UK_CASEMIX.note} The <b>Tool's UK %</b> column is the chapter anchor currently assumed by this tool; where Δ is large and flagged ⚠ the headline missed-revenue figure is materially sensitive to that assumption.</p>`;
 }
-function renderAll(){ renderKpis(); renderTop10(); renderRank(); renderBench(); renderUkCasemix(); renderOutputs(); runSim(); }
+function renderAll(){ renderKpis(); renderTop10(); renderRank(); renderBench(); renderUkCasemix(); renderOutputs(); renderAu(); runSim(); }
 renderAll();
 
 
