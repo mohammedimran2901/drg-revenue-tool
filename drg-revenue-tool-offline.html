@@ -62,7 +62,6 @@ footer{padding:12px 24px;font-size:11px;color:var(--muted);}
 </header>
 <nav id="nav">
   <button class="active" data-tab="outputs">📤 Outputs — DRG opportunities</button>
-  <button data-tab="au">🇦🇺 AU Outputs — like-for-like</button>
   <button data-tab="top10">🎯 Biggest Bank for Buck</button>
   <button data-tab="facility">🏥 Facility Targeting</button>
   <button data-tab="ranking">Full Ranking</button>
@@ -99,46 +98,6 @@ footer{padding:12px 24px;font-size:11px;color:var(--muted);}
     <div class="grid2">
       <div class="card"><h3>Top opportunities — selected benchmark</h3><div id="oBars"></div></div>
       <div class="card"><h3>Benchmark reference &amp; evidence</h3><div id="oBenchRef"></div></div>
-    </div>
-  </section>
-
-  <section id="tab-au" class="hidden">
-    <div class="card" style="border-left:5px solid var(--teal);">
-      <h3 style="margin-top:0">🇦🇺 Australia AIHW — the like-for-like benchmark <span class="note" style="font-weight:400">(why this matters)</span></h3>
-      <p class="note" style="margin-top:6px;line-height:1.6">
-        Saudi Arabia adopted <b>ICD-10-AM + AR-DRG v9.0</b> (Saudi Health Council), and CHI's own
-        correlation analysis scored the KSA price list at <b>0.96 against Australian AR-DRG v9.0
-        2019/20</b> (vs 0.92 for UAE IR-DRG 3.01 and a different grouping for UK HRG4+).
-        Same grouper and same MINC/MAJC complexity logic ⇒ the Australian complexity splits are
-        <b>genuinely like-for-like</b>, whereas the UK per-DRG figures are a calibration across a
-        different grouper. Australia is also the only <b>per-DRG evidenced</b> source in this tool
-        (<b id="auPdCountRef"></b> of 309 DRGs).</p>
-    </div>
-    <div class="card" id="auHeadline" style="border-left:5px solid var(--teal);"></div>
-    <div class="kpis" id="auKpis"></div>
-    <div class="card">
-      <h3>AU-benchmarked DRG outputs <span class="note" id="auSub" style="font-weight:400"></span></h3>
-      <div class="filters">
-        <label class="note" style="display:flex;gap:6px;align-items:center;">
-          <input type="checkbox" id="auAll" onchange="renderAu()"> Compare all benchmarks
-        </label>
-        <input id="auSearch" placeholder="Search DRG / description…" oninput="renderAu()">
-        <select id="auMdc" onchange="renderAu()"><option value="">All MDCs</option></select>
-        <select id="auOnly" onchange="renderAu()">
-          <option value="">All DRGs</option>
-          <option value="gap">Only DRGs with a gap vs AU</option>
-          <option value="top20">Top 20 by opportunity</option>
-        </select>
-        <button class="act" onclick="exportOutputs('csv', true, 'au')">⬇ CSV (all benchmarks)</button>
-        <button class="act" style="background:var(--navy);" onclick="exportOutputs('xlsx', true, 'au')">⬇ Excel (all benchmarks)</button>
-        <button class="act" style="background:var(--teal);" onclick="exportOutputs('csv', false, 'au')">⬇ AU benchmark only (CSV)</button>
-      </div>
-      <div class="tblwrap" style="max-height:620px"><table id="tblAu"><thead></thead><tbody></tbody></table></div>
-      <p class="note" id="auFormula" style="margin-top:10px"></p>
-    </div>
-    <div class="grid2">
-      <div class="card"><h3>Top opportunities — Australia AIHW</h3><div id="auBars"></div></div>
-      <div class="card"><h3>Benchmark reference &amp; evidence</h3><div id="auBenchRef"></div></div>
     </div>
   </section>
     <div class="kpis" id="kpis"></div>
@@ -554,13 +513,11 @@ function renderBench(){
   $("pdCount").textContent = Object.keys(BENCH.per_drg||{}).length;
 }
 
-// ---- outputs tab: DRG-level opportunity under every benchmark --------------
-// Element ids for each Outputs-style view. "main" is the active-benchmark tab
-// (UK by default); "au" is the fixed-Australia tab. Both share one renderer, so
-// the two tabs can never drift apart.
+// ---- outputs tab: DRG-level opportunity under the benchmark ----------------
+// Element ids for the single Outputs view. The benchmark selector still lets a
+// user switch benchmark, but UK is the default headline.
 const OUT_IDS = {
-  main: {sub:"oSub", headline:"oHeadline", kpis:"oKpis", all:"oAll", search:"oSearch", mdc:"oMdc", only:"oOnly", table:"tblOutputs", formula:"oFormula", bars:"oBars", ref:"oBenchRef"},
-  au:   {sub:"auSub", headline:"auHeadline", kpis:"auKpis", all:"auAll", search:"auSearch", mdc:"auMdc", only:"auOnly", table:"tblAu", formula:"auFormula", bars:"auBars", ref:"auBenchRef"}
+  main: {sub:"oSub", headline:"oHeadline", kpis:"oKpis", all:"oAll", search:"oSearch", mdc:"oMdc", only:"oOnly", table:"tblOutputs", formula:"oFormula", bars:"oBars", ref:"oBenchRef"}
 };
 function populateMdcSelect(id){
   const mdc = $(id);
@@ -574,9 +531,7 @@ function populateOutputControls(){
   if (sel && !sel.options.length)
     sel.innerHTML = BENCHMARKS.map(b => `<option value="${b.id}">${b.label} — ${b.evidence}</option>`).join("");
   if (sel) sel.value = activeBench;
-  populateMdcSelect("oMdc"); populateMdcSelect("auMdc");
-  const pd = $("auPdCountRef");
-  if (pd) pd.textContent = Object.keys(BENCH.per_drg||{}).length;
+  populateMdcSelect("oMdc");
 }
 function outputRows(idsKey, benchId){
   const ids = OUT_IDS[idsKey] || OUT_IDS.main, bench = benchId || activeBench;
@@ -608,13 +563,11 @@ function renderOutputInto(idsKey, benchId){
   $(ids.sub).textContent = `— ${b.label} · ${b.evidence} · observed minor share from ${peerDRGs?peerDRGs+" uploaded DRGs (your data)":"KSA baseline (assumed — no file loaded)"}`;
   const peerWarn = peerDRGs ? "" : ` <b>No patient file loaded</b> — observed shares fall back to the KSA CHI baseline; upload a file in Facility Targeting for your own observed split.`;
   const noFileBanner = peerDRGs ? "" : `<div style="background:#fdecea;border:1px solid #f0b8b0;border-radius:6px;padding:9px 12px;margin-bottom:10px;color:#8a1f11;font-weight:700;font-size:13px;line-height:1.5;">⚠️ Not your data yet — no patient file is loaded, so the observed complexity mix behind this number is an <u>assumption</u> (the KSA CHI baseline), not your casemix. Upload a file in <b>Facility Targeting</b> to make it real.</div>`;
-  const otherId = benchId === "uk" ? "au" : (benchId === "au" ? "uk" : null);
-  const otherNote = otherId ? ` <b>Why does the other tab show a different number?</b> It measures the <i>same</i> casemix against a different complexity target — the entire difference is which benchmark you compare against, not the data itself.` : "";
   $(ids.headline).innerHTML = `
     ${noFileBanner}
     <div class="note" style="text-transform:uppercase;letter-spacing:.5px;font-weight:700;">Estimated missed revenue vs ${b.label} — insured inpatient cases</div>
     <div style="font-size:36px;font-weight:800;color:var(--navy);line-height:1.1;margin:4px 0;">${fmtSAR(fullMissed)}</div>
-    <div class="note">Additional insured income if the Minor/Major split of IP encounters matched <b>${b.label}</b> (${b.evidence}) and was billed at the CHI AR-DRG v9.0 tariff. ${underRep} DRG${underRep===1?"":"s"} currently look <b>major-under-reported</b>.${caveat}${peerWarn}${otherNote}</div>`;
+    <div class="note">Additional insured income if the Minor/Major split of IP encounters matched <b>${b.label}</b> (${b.evidence}) and was billed at the CHI AR-DRG v9.0 tariff. ${underRep} DRG${underRep===1?"":"s"} currently look <b>major-under-reported</b>.${caveat}${peerWarn}</div>`;
   $(ids.kpis).innerHTML = `
     <div class="kpi gold"><div class="l">Missed insured revenue vs ${b.short}</div><div class="v">${fmtSAR(fullMissed)}</div><div class="note">Σ gap × insured cases × tariff uplift · all ${full.length} DRGs</div></div>
     <div class="kpi red"><div class="l">DRGs under-reporting majors</div><div class="v">${underRep}</div><div class="note">observed minor share above the ${b.short} target</div></div>
@@ -653,7 +606,6 @@ function renderOutputInto(idsKey, benchId){
   renderOutputBars(idsKey, benchId, rows); renderBenchRef(idsKey, benchId);
 }
 function renderOutputs(){ populateOutputControls(); renderOutputInto("main", activeBench); }
-function renderAu(){ populateOutputControls(); renderOutputInto("au", "au"); }
 
 function renderOutputBars(idsKey, benchId, rows){
   const ids = OUT_IDS[idsKey] || OUT_IDS.main;
@@ -676,7 +628,7 @@ function renderBenchRef(idsKey, benchId){
 
 function exportOutputs(fmt, all, idsKey){
   idsKey = idsKey || "main";
-  const benchId = (idsKey === "au") ? "au" : activeBench;
+  const benchId = activeBench;
   const rows = outputRows(idsKey, benchId), b = BENCH_BY_ID[benchId];
   const cols = all ? BENCHMARKS : [b];
   const header = ["DRG","MDC","BodySystem","Description","InsuredCases","MoneyAtStakeSAR","ObservedMinorShare","ObservedFrom"];
@@ -952,7 +904,7 @@ function renderUkCasemix(){
         <td class="note">${r.e.ch.join(", ")}</td></tr>`; }).join("") + `</tbody></table></div>
     <p class="note" style="margin-top:10px"><b>Provenance.</b> ${UK_CASEMIX.source}. These are real NHS Finished Consultant Episodes with a real Low/Medium/High split — ${pct(bs.explicit)} of activity banded from NHS's own complexity wording, ${pct(bs.cc)} from the CC-score ladder, ${pct(bs.cost)} from unit-cost tertile. <b>Limitation:</b> ${UK_CASEMIX.note} The <b>Tool's UK %</b> column is the chapter anchor currently assumed by this tool; where Δ is large and flagged ⚠ the headline missed-revenue figure is materially sensitive to that assumption.</p>`;
 }
-function renderAll(){ renderKpis(); renderTop10(); renderRank(); renderBench(); renderUkCasemix(); renderOutputs(); renderAu(); runSim(); }
+function renderAll(){ renderKpis(); renderTop10(); renderRank(); renderBench(); renderUkCasemix(); renderOutputs(); runSim(); }
 renderAll();
 
 

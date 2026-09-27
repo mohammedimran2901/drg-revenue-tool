@@ -109,8 +109,10 @@ NHS_HRG_CSV=/tmp/nhs_hrg.csv python3 build_uk_casemix.py      # writes uk-casemi
 
 ## Why Australia is the best DRG comparison for Saudi Arabia
 
-**This is the tab to use when you want a defensible number.** The 🇦🇺 AU Outputs tab
-makes Australia the benchmark; the 🇬🇧 default Outputs tab uses UK.
+**This is the arithmetically most defensible comparison.** The tool presents **UK** as
+the single headline number by default; Australia (and every other benchmark) stays
+selectable from the **Benchmark** dropdown on the Outputs tab, and the per-DRG
+compare-all view still shows all benchmarks side by side.
 
 - Saudi Arabia adopted **ICD-10-AM 10th Edition + AR-DRG v9.0** (Saudi Health Council);
   CHI mandated AR-DRG for Article 11 provision from 2021, and it is the sole
@@ -128,14 +130,13 @@ activity-based system — the best "what good looks like" reference — but it i
 
 ## Tabs
 
-- **📤 Outputs — DRG opportunities** (default): missed-revenue headline, KPIs,
-  per-DRG table (benchmark target, gap pp, direction, missed revenue, per-1% shift),
-  compare-all-benchmarks view, and CSV / Excel exports.
-- **🇦🇺 AU Outputs — like-for-like**: the same view with **Australia AIHW fixed as the
-  benchmark**. Both tabs share one renderer (`renderOutputInto`), so they can never
-  drift apart; the only difference is which benchmark drives the target, the header
-  and the export. Use this tab when you want the arithmetically *like-for-like* number
-  and the UK tab when you want the UK "what good looks like" reference.
+- **📤 Outputs — DRG opportunities** (default): one missed-revenue headline (**UK**
+  benchmark by default — change it with the **Benchmark** dropdown), KPIs, per-DRG
+  table (benchmark target, gap pp, direction, missed revenue, per-1% shift),
+  compare-all-benchmarks view, and CSV / Excel exports. There is deliberately **one
+  headline number**: the ceiling ("every minor → major") is never shown as a headline,
+  because it is a theoretical maximum rather than a reachable opportunity, and showing
+  it beside the opportunity figure read as a second competing answer.
 - **🎯 Biggest Bank for Buck** — top-10 DRGs by money at stake.
 - **🏥 Facility Targeting** — upload, column mapping, facility league table.
 - **Full Ranking** — sortable DRG league table.
