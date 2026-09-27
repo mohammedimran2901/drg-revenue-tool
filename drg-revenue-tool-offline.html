@@ -592,9 +592,7 @@ function renderOutputInto(idsKey, benchId){
   const ids = OUT_IDS[idsKey] || OUT_IDS.main, b = BENCH_BY_ID[benchId];
   const all = $(ids.all).checked, rows = outputRows(idsKey, benchId);
   const full = drgOutput();
-  const totOpp = rows.reduce((s,r)=>s+(r.bench[benchId].opp||0),0);       // in-view (filtered)
   const fullMissed = full.reduce((s,r)=>s+(r.bench[benchId].opp||0),0);   // ALL DRGs — matches other tabs
-  const fullCeiling = full.reduce((s,r)=>s+r.ceiling,0);
   const totCases = rows.reduce((s,r)=>s+r.cases,0);
   const peerDRGs = Object.keys(PEER_SHARE).length;
   const underRep = full.filter(r=>(r.bench[benchId].gap||0)>0.005).length;
@@ -607,17 +605,20 @@ function renderOutputInto(idsKey, benchId){
   const dirOf = o => (o.gap||0) > 0.005
     ? '<span class="badge b-low">majors under-reported</span>'
     : '<span class="badge b-high">at benchmark</span>';
-  $(ids.sub).textContent = `— ${b.label} · ${b.evidence} · observed minor share from ${peerDRGs?peerDRGs+" uploaded DRGs (peer)":"KSA baseline (no file uploaded)"}`;
+  $(ids.sub).textContent = `— ${b.label} · ${b.evidence} · observed minor share from ${peerDRGs?peerDRGs+" uploaded DRGs (your data)":"KSA baseline (assumed — no file loaded)"}`;
   const peerWarn = peerDRGs ? "" : ` <b>No patient file loaded</b> — observed shares fall back to the KSA CHI baseline; upload a file in Facility Targeting for your own observed split.`;
+  const noFileBanner = peerDRGs ? "" : `<div style="background:#fdecea;border:1px solid #f0b8b0;border-radius:6px;padding:9px 12px;margin-bottom:10px;color:#8a1f11;font-weight:700;font-size:13px;line-height:1.5;">⚠️ Not your data yet — no patient file is loaded, so the observed complexity mix behind this number is an <u>assumption</u> (the KSA CHI baseline), not your casemix. Upload a file in <b>Facility Targeting</b> to make it real.</div>`;
+  const otherId = benchId === "uk" ? "au" : (benchId === "au" ? "uk" : null);
+  const otherNote = otherId ? ` <b>Why does the other tab show a different number?</b> It measures the <i>same</i> casemix against a different complexity target — the entire difference is which benchmark you compare against, not the data itself.` : "";
   $(ids.headline).innerHTML = `
+    ${noFileBanner}
     <div class="note" style="text-transform:uppercase;letter-spacing:.5px;font-weight:700;">Estimated missed revenue vs ${b.label} — insured inpatient cases</div>
     <div style="font-size:36px;font-weight:800;color:var(--navy);line-height:1.1;margin:4px 0;">${fmtSAR(fullMissed)}</div>
-    <div class="note">Additional insured income if the Minor/Major split of IP encounters matched <b>${b.label}</b> (${b.evidence}) and was billed at the CHI AR-DRG v9.0 tariff. ${underRep} DRG${underRep===1?"":"s"} currently look <b>major-under-reported</b>. Money at stake (ceiling, every minor → major) = <b>${fmtSAR(fullCeiling)}</b>.${caveat}${peerWarn}</div>`;
+    <div class="note">Additional insured income if the Minor/Major split of IP encounters matched <b>${b.label}</b> (${b.evidence}) and was billed at the CHI AR-DRG v9.0 tariff. ${underRep} DRG${underRep===1?"":"s"} currently look <b>major-under-reported</b>.${caveat}${peerWarn}${otherNote}</div>`;
   $(ids.kpis).innerHTML = `
-    <div class="kpi gold"><div class="l">Missed revenue — ${b.short} (insured)</div><div class="v">${fmtSAR(fullMissed)}</div><div class="note">Σ gap × insured cases × tariff uplift · all ${full.length} DRGs</div></div>
-    <div class="kpi"><div class="l">Money at stake — ceiling (insured)</div><div class="v">${fmtSAR(fullCeiling)}</div><div class="note">Σ uplift × insured cases (every minor → major)</div></div>
-    <div class="kpi red"><div class="l">DRGs under-reporting majors</div><div class="v">${underRep}</div><div class="note">observed minor share above ${b.short} target</div></div>
-    <div class="kpi"><div class="l">In view</div><div class="v">${rows.length} DRGs</div><div class="note">${fmtSAR(totOpp)} missed · ${casesAffected.toLocaleString()} insured cases with a gap (of ${totCases.toLocaleString()})</div></div>`;
+    <div class="kpi gold"><div class="l">Missed insured revenue vs ${b.short}</div><div class="v">${fmtSAR(fullMissed)}</div><div class="note">Σ gap × insured cases × tariff uplift · all ${full.length} DRGs</div></div>
+    <div class="kpi red"><div class="l">DRGs under-reporting majors</div><div class="v">${underRep}</div><div class="note">observed minor share above the ${b.short} target</div></div>
+    <div class="kpi"><div class="l">Insured cases with a gap</div><div class="v">${casesAffected.toLocaleString()}</div><div class="note">of ${totCases.toLocaleString()} insured cases in view</div></div>`;
   let head;
   if (all){
     head = `<th>DRG</th><th>MDC</th><th>Description</th><th>Insured cases</th><th>Money at stake</th><th>Observed %</th><th>Direction</th>` +
