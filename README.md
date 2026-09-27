@@ -128,6 +128,47 @@ activity-based system — the best "what good looks like" reference — but it i
 
 ---
 
+## Verifying the Australian values
+
+The Australia tab is the only place in the tool backed by **published per-DRG
+evidence** rather than a calibration, so it ships with a reproducible check.
+
+The claimed method, for each AR-DRG base code:
+
+```
+AU minor share = (all non-Major complexity splits) / (all splits)
+```
+
+where the splits are the published separation counts for that DRG family
+(`A` = Major, `B` = Intermediate, `C` = Minor). Worked example — `X64`:
+`(3,563 + 7,726) / (2,428 + 3,563 + 7,726) = 11,289 / 13,717 = 82.3%`.
+
+Run it from the repo root:
+
+```bash
+python3 tools/verify_au_casemix.py                    # 8 spot checks, no download
+python3 tools/verify_au_casemix.py --cube <file.xlsx> # full re-derivation of all 306
+```
+
+The spot checks recompute eight DRGs straight from the published AIHW separation
+counts and compare them to the values stored in the tool. **All eight currently pass
+at ±0.0000** (X64 0.8230, X61 0.8680, X62 0.6455, X60 0.7525, Z01 0.9087, Z64 0.9097,
+Y03 0.7663, W61 0.5002).
+
+The same eight DRGs are re-shown **inside the tool**, on the Australia tab, with the
+separation counts visible — so the provenance travels with the file.
+
+`--cube` mode needs `openpyxl` and the AIHW AR-DRG v9.0 2019–20 cube. The AIHW site
+is behind a bot check, so the cube cannot be fetched unattended: download it once and
+pass the path. It parses every DRG family, re-derives every share and reports any row
+that differs from the stored value by more than 4-decimal rounding.
+
+Sources: [AIHW AR-DRG v9.0 data cubes](https://www.aihw.gov.au/reports/hospitals/ar-drg-data-cubes/contents/summary),
+sheet "DRG Counts Summary" (National Hospital Morbidity Database, all public and
+private Australian hospitals, acute care).
+
+---
+
 ## Tabs
 
 - **📤 Outputs — DRG opportunities** (default): one missed-revenue headline (**UK**
@@ -137,6 +178,16 @@ activity-based system — the best "what good looks like" reference — but it i
   headline number**: the ceiling ("every minor → major") is never shown as a headline,
   because it is a theoretical maximum rather than a reachable opportunity, and showing
   it beside the opportunity figure read as a second competing answer.
+- **🇦🇺 Australia — casemix evidence**: the like-for-like comparison. For all 309
+  DRGs it shows the Australian **major/minor complexity split** taken directly from
+  the AIHW AR-DRG v9.0 2019–20 cube next to our own split, the gap in percentage
+  points, and a plain-English read ("we look simpler than Australia"). Cards cover
+  evidence coverage (306/309 DRGs evidenced per-DRG), the mean AU minor share, how
+  many DRGs we look simpler in and the insured cases sitting in them; a gap bar chart
+  ranks the DRGs by `gap × cases`; and a verification panel re-shows the published
+  separation counts behind eight spot-checked DRGs. This tab deliberately carries
+  **no revenue headline** — it is casemix evidence only, so it cannot compete with the
+  single Outputs number.
 - **🎯 Biggest Bank for Buck** — top-10 DRGs by money at stake.
 - **🏥 Facility Targeting** — upload, column mapping, facility league table.
 - **Full Ranking** — sortable DRG league table.
@@ -190,7 +241,7 @@ server and no internet.
 
 ## Version
 
-**v2.5** (2026-09-26) · Price table: AR-DRG v9.0 (CHI).
+**v2.6** (2026-09-27) · Price table: AR-DRG v9.0 (CHI).
 
 > For internal revenue-strategy use. UK per-DRG values are a **calibration over
 > Australian data**, not NHS per-DRG data; real NHS activity and complexity are shown
